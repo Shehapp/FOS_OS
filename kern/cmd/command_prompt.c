@@ -374,11 +374,93 @@ int execute_command(char *command_string)
 	return 0;
 }
 
+bool match(char * u_c, char * commnds){
+
+//	cprintf("asdsd");
+//	cprintf("%s -> %d \n",commnds,strlen(commnds));
+	int y =0 ;
+	for (int i = 0 ; i<strlen(commnds);i++){
+		//
+		if(u_c[y]==commnds[i])
+		{
+			y++;
+		}
+
+		if (y==strlen(u_c))
+		{
+
+			return 1;
+		}
+	}
+	return 0 ;
+
+}
 
 int process_command(int number_of_arguments, char** arguments)
 {
+
+	LIST_INIT(&foundCommands);
+	//List of found commands
+	/*foundCommands.lh_first=NULL;
+	foundCommands.lh_last=NULL;
+	foundCommands.___ptr_next=NULL;
+	foundCommands.size=0;
+
+*/
+
+
 	//TODO: [PROJECT'23.MS1 - #2] [1] PLAY WITH CODE! - process_command
 	//Comment the following line before start coding...
-	panic("process_command is not implemented yet");
-	return 0;
+	int command_found = 0;
+		int i ;
+		for (i = 0; i < NUM_OF_COMMANDS; i++)
+		{
+			if (strcmp(arguments[0], commands[i].name) == 0 )
+			{
+				command_found = 1;
+				break;
+			}
+		}
+
+		if(command_found)
+		{
+			if (number_of_arguments-1==commands[i].num_of_args)
+			{
+				return i;
+			}
+			else
+			{
+				LIST_INSERT_HEAD(&foundCommands,&commands[i]);
+
+				return CMD_INV_NUM_ARGS;
+
+			}
+		}
+		else
+		{
+			bool found=-1;
+
+			for (i = 0; i < NUM_OF_COMMANDS; i++){
+				if (match(arguments[0],commands[i].name))
+				{
+					if(found==-1){
+						LIST_INSERT_HEAD(&foundCommands,&commands[i]);
+						found=i;
+					}
+					else{
+						LIST_INSERT_AFTER(&foundCommands,&commands[found],&commands[i]);
+					}
+				}
+			}
+			if (found == -1){
+			//if not found, then it's unknown command
+            //cprintf("Unknown command '%s'\n", arguments[0]);
+			return CMD_INVALID;
+			}
+		}
+
+			return CMD_MATCHED ;
+
+		//panic("process_command is not implemented yet");
 }
+
