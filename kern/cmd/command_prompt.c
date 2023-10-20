@@ -424,7 +424,7 @@ int process_command(int number_of_arguments, char** arguments)
 
 		if(command_found)
 		{
-			if (number_of_arguments-1==commands[i].num_of_args)
+			if (number_of_arguments-1==commands[i].num_of_args || commands[i].num_of_args==-1)
 			{
 				return i;
 			}
