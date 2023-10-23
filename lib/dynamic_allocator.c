@@ -18,8 +18,8 @@
 //=====================================================
 uint32 get_block_size(void* va)
 {
-    struct BlockMetaData *curBlkMetaData = ((struct BlockMetaData *)va - 1) ;
-    return curBlkMetaData->size ;
+	struct BlockMetaData *curBlkMetaData = ((struct BlockMetaData *)va - 1) ;
+	return curBlkMetaData->size ;
 }
 
 //===========================
@@ -27,8 +27,8 @@ uint32 get_block_size(void* va)
 //===========================
 int8 is_free_block(void* va)
 {
-    struct BlockMetaData *curBlkMetaData = ((struct BlockMetaData *)va - 1) ;
-    return curBlkMetaData->is_free ;
+	struct BlockMetaData *curBlkMetaData = ((struct BlockMetaData *)va - 1) ;
+	return curBlkMetaData->is_free ;
 }
 
 //===========================================
@@ -36,26 +36,26 @@ int8 is_free_block(void* va)
 //===========================================
 void *alloc_block(uint32 size, int ALLOC_STRATEGY)
 {
-    void *va = NULL;
-    switch (ALLOC_STRATEGY)
-    {
-        case DA_FF:
-            va = alloc_block_FF(size);
-            break;
-        case DA_NF:
-            va = alloc_block_NF(size);
-            break;
-        case DA_BF:
-            va = alloc_block_BF(size);
-            break;
-        case DA_WF:
-            va = alloc_block_WF(size);
-            break;
-        default:
-            cprintf("Invalid allocation strategy\n");
-            break;
-    }
-    return va;
+	void *va = NULL;
+	switch (ALLOC_STRATEGY)
+	{
+	case DA_FF:
+		va = alloc_block_FF(size);
+		break;
+	case DA_NF:
+		va = alloc_block_NF(size);
+		break;
+	case DA_BF:
+		va = alloc_block_BF(size);
+		break;
+	case DA_WF:
+		va = alloc_block_WF(size);
+		break;
+	default:
+		cprintf("Invalid allocation strategy\n");
+		break;
+	}
+	return va;
 }
 
 //===========================
@@ -64,16 +64,16 @@ void *alloc_block(uint32 size, int ALLOC_STRATEGY)
 
 void print_blocks_list(struct MemBlock_LIST list)
 {
-    cprintf("=========================================\n");
-    struct BlockMetaData* blk ;
+	cprintf("=========================================\n");
+	struct BlockMetaData* blk ;
 
-    cprintf("\nDynAlloc Blocks List:\n");
-    LIST_FOREACH(blk, &list)
-    {
-        void*ptr=(void*)blk;
-        cprintf("(size: %d, isFree: %d ,points_to: %x)\n", blk->size, blk->is_free,ptr) ;
-    }
-    cprintf("=========================================\n");
+	cprintf("\nDynAlloc Blocks List:\n");
+	LIST_FOREACH(blk, &list)
+	{
+		void*ptr=(void*)blk;
+		cprintf("(size: %d, isFree: %d ,points_to: %x)\n", blk->size, blk->is_free,ptr) ;
+	}
+	cprintf("=========================================\n");
 
 }
 //
@@ -91,37 +91,58 @@ void print_blocks_list(struct MemBlock_LIST list)
 //declare the list
 struct MemBlock_LIST heap;
 
-
-//@author Tarek
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace)
 {
+	LIST_INIT(&heap);
+	//declare the block
+	struct BlockMetaData *first_block ;
+	//LIST_INIT(&first_block);
+	first_block=(struct BlockMetaData *)daStart;
+	first_block->is_free=1;
+	first_block->size=initSizeOfAllocatedSpace;
+	LIST_INSERT_HEAD(&heap, first_block);
+//	struct BlockMetaData *blk;
 
 
-    // initSizeOfAllocatedSpace = required size + meta size
 
-    //=========================================
-    //DON'T CHANGE THESE LINES=================
-    if (initSizeOfAllocatedSpace == 0)
-        return ;
-    //=========================================
-    //=========================================
+//
+//	LIST_FOREACH(blk, &heap)
+//	{
+//		// 1 0
+//		// 2 4
+//		// 3 4
+//		void * cur =(void*)blk;
+//
+//		cprintf("%x \n",blk+36+sizeOfMetaData()/16);
+//		cprintf("%x  blk \n",blk);
+//		cprintf("%x  blk+1\n",blk+1);
+//
+//		cprintf("%x cur + meta \n",cur+sizeOfMetaData());
+//		cprintf("%x  blk+sizeOfMetaData()\n",blk+sizeOfMetaData());
+//		cprintf("%x  blk+sizeOfMetaData()/16\n",blk+(sizeOfMetaData()/16));
+//		cprintf("%x  blk+sizeOfMetaData()+16\n",blk+sizeOfMetaData()+16);
+//		cprintf("%x \n",daStart);
+//
+//	}
+	//print_blocks_list(heap);
+	//
+	// 1  2  3  4  5  6
+	//=========================================
+	//DON'T CHANGE THESE LINES=================
+	if (initSizeOfAllocatedSpace == 0)
+		return ;
+	//=========================================
+	//=========================================
 
-    //TODO: [PROJECT'23.MS1 - #5] [3] DYNAMIC ALLOCATOR - initialize_dynamic_allocator()
 
-    LIST_INIT(&heap);
-    struct BlockMetaData *first_block ;
-    first_block=(struct BlockMetaData *)daStart;
-    first_block->is_free=1;
-    first_block->size=initSizeOfAllocatedSpace;
-    LIST_INSERT_HEAD(&heap, first_block);
-
-    //panic("initialize_dynamic_allocator is not implemented yet");
+	//TODO: [PROJECT'23.MS1 - #5] [3] DYNAMIC ALLOCATOR - initialize_dynamic_allocator()
+	//panic("initialize_dynamic_allocator is not implemented yet");
 }
 
 
 void print_heap(){
 
-    print_blocks_list(heap);
+	print_blocks_list(heap);
 }
 
 
@@ -130,58 +151,102 @@ void print_heap(){
 // [4] ALLOCATE BLOCK BY FIRST FIT:
 
 
-
-
-
-//@author Tarek
+/*
+ *
+ * */
 //=========================================
-void *alloc_block_FF(uint32 size) {
+void *alloc_block_FF(uint32 size)
+{
 
 
-    //TODO: [PROJECT'23.MS1 - #6] [3] DYNAMIC ALLOCATOR - alloc_block_FF()
+
+	//print_blocks_list(heap);
 
 
-    int tot_size = size + sizeOfMetaData();
-    int meta_size=sizeOfMetaData()/16;
+	int tot_size=size+sizeOfMetaData();
+	//cprintf("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss \n");
+
+	/*int negative = -1;
+	int fonund = 0;*/
+	/*cprintf("+++++++++");
+	print_blocks_list(heap);
+	cprintf("%d needed size \n",size);*/
+	if(size==0){
+		return NULL;
+	}
+
+	    struct BlockMetaData* blk ;
+		LIST_FOREACH(blk, &heap)
+		{
+			if(blk->is_free && size==(blk->size-sizeOfMetaData())){
 
 
-    if (size == 0) {
-        return NULL;
-    }
+							blk->is_free=0;
+							return (blk+(sizeOfMetaData()/16));
 
-    struct BlockMetaData *blk;
-    LIST_FOREACH(blk, &heap)
-    {
-        if (blk->is_free && size == (blk->size - sizeOfMetaData())) {
+			}
 
-
-            blk->is_free = 0;
-            return (blk + meta_size);
-
-        }  else if (blk->is_free && tot_size < (blk->size - sizeOfMetaData())) {
-
-            struct BlockMetaData *new_blk;
-
-            void *cur = (void *) blk;
-            new_blk = cur + tot_size;
-            new_blk->is_free = 1;
-            new_blk->size = blk->size - tot_size;
-            blk->size = tot_size;
-            blk->is_free = 0;
-            LIST_INSERT_AFTER(&heap, blk, new_blk);
-            return (blk + meta_size);
-
-        }
+			else if(blk->is_free && (blk->size-sizeOfMetaData())==tot_size){
+				panic("hobaaaa");
+				cprintf("2ywa 2ywa momken");
+			}
 
 
-    }
+			if(blk->is_free&& (blk->size-sizeOfMetaData()-size)<=16 && (blk->size-sizeOfMetaData()-size)>=0){
 
+				blk->is_free=0;
+				return (blk+(sizeOfMetaData()/16));
+
+			}
+
+
+			else if(blk->is_free && tot_size<(blk->size-sizeOfMetaData())){
+
+				struct BlockMetaData *new_blk;
+
+				void * cur =(void*)blk;
+				new_blk=cur+(size+sizeOfMetaData());
+				new_blk->is_free=1;
+				new_blk->size=blk->size-(size+sizeOfMetaData());
+				// filled
+				blk->size=tot_size;//+sizeOfMetaData();
+				blk->is_free=0;
+				LIST_INSERT_AFTER(&heap,blk,new_blk);
+				//print_blocks_list(heap);
+				return (blk+(sizeOfMetaData()/16));
+
+			}
+
+
+		}
+
+		/*void* brk = sbrk(tot_size);
+
+		if(brk==(void *)-1){
+			return NULL;
+		}
+		else{
+
+			panic("d5lna sbrk s7 \n" );
+			struct BlockMetaData *new_blk;
+			// address
+			new_blk=brk;
+			// empty
+			new_blk->is_free=0;
+			new_blk->size=tot_size;
+
+			LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_blk);
+			return brk+(sizeOfMetaData()/16);
+		}*/
+
+
+
+
+	//TODO: [PROJECT'23.MS1 - #6] [3] DYNAMIC ALLOCATOR - alloc_block_FF()
 //	panic("alloc_block_FF is not implemented yet");
 
-    return NULL;
+		return NULL;
 }
-
-
 
 
 //=========================================
@@ -203,6 +268,7 @@ void *alloc_block_BF(uint32 size) {
     uint64 mn = 1000000000;
 
 
+    uint8 io=-1;
     int which=-1;
     int i=0;
     LIST_FOREACH(blk, &heap)
@@ -215,9 +281,20 @@ void *alloc_block_BF(uint32 size) {
             blk->is_free = 0;
             return (blk + meta_size);
 
-        } else if (blk->is_free && tot_size <= (blk->size - sizeOfMetaData()) && blk->size <= mn) {
+        }
+
+        else if(blk->is_free&& (blk->size-sizeOfMetaData()-size)<=16 && (blk->size-sizeOfMetaData()-size)>=0 && blk->size <= mn){
+        	mn = blk->size;
+            which=i;
+            io=0;
+
+
+
+		}
+        else if (blk->is_free && tot_size <= (blk->size - sizeOfMetaData()) && blk->size <= mn) {
             mn = blk->size;
             which=i;
+            io=1;
         }
         i++;
     }
@@ -229,6 +306,12 @@ void *alloc_block_BF(uint32 size) {
         {
             if(which==i){
                 struct BlockMetaData *new_blk;
+
+                if(io==0){
+                	blk->is_free=0;
+                	return (blk + meta_size);
+
+                }
 
                 void *cur = (void *) blk;
                 new_blk = cur + tot_size;
@@ -249,17 +332,13 @@ void *alloc_block_BF(uint32 size) {
     return NULL;
 }
 
-
-
-
-
 //=========================================
 // [6] ALLOCATE BLOCK BY WORST FIT:
 //=========================================
 void *alloc_block_WF(uint32 size)
 {
-    panic("alloc_block_WF is not implemented yet");
-    return NULL;
+	panic("alloc_block_WF is not implemented yet");
+	return NULL;
 }
 
 //=========================================
@@ -267,140 +346,150 @@ void *alloc_block_WF(uint32 size)
 //=========================================
 void *alloc_block_NF(uint32 size)
 {
-    panic("alloc_block_NF is not implemented yet");
-    return NULL;
+	panic("alloc_block_NF is not implemented yet");
+	return NULL;
 }
 
 //===================================================
 // [8] FREE BLOCK WITH COALESCING:
-//@Author: tarek
 //===================================================
 void free_block(void *va)
 {
-    //TODO: [PROJECT'23.MS1 - #7] [3] DYNAMIC ALLOCATOR - free_block()
-    //panic("free_block is not implemented yet");
+	//TODO: [PROJECT'23.MS1 - #7] [3] DYNAMIC ALLOCATOR - free_block()
+	//panic("free_block is not implemented yet");
 
 
-    //print_blocks_list(heap);
+	//print_blocks_list(heap);
 
 
-    cprintf("Before \n");
-    //print_blocks_list(heap);
+	//cprintf("Before \n");
+	//print_blocks_list(heap);
 
 
-    //cprintf(" our blk in va %x \n",va);
+	//cprintf(" our blk in va %x \n",va);
 
 
-    struct BlockMetaData *cur_free = ((struct BlockMetaData *)va - 1) ;
+	struct BlockMetaData *cur_free = ((struct BlockMetaData *)va - 1) ;
 
-    //cprintf(" our blk in %d",get_block_size(va));
-    //cprintf(" our blk in %x",cur_free);
-
-
-    struct BlockMetaData *cur_free_prev=NULL;
-    struct BlockMetaData *cur_free_next=NULL;
+	//cprintf(" our blk in %d",get_block_size(va));
+	//cprintf(" our blk in %x",cur_free);
 
 
-    if(cur_free->prev_next_info.le_next!=NULL){
-
-        cur_free_next=LIST_NEXT(cur_free);
-    }
+	struct BlockMetaData *cur_free_prev=NULL;
+	struct BlockMetaData *cur_free_next=NULL;
 
 
-    if(cur_free->prev_next_info.le_prev != NULL){
+	if(cur_free->prev_next_info.le_next!=NULL){
 
-        cur_free_prev=LIST_PREV(cur_free);
-    }
+		cur_free_next=LIST_NEXT(cur_free);
+	}
 
 
+	if(cur_free->prev_next_info.le_prev != NULL){
 
-    //cprintf("p %x  fs %x nx %x ",cur_free_prev,cur_free,cur_free_next);
-
-    //panic("stop");
-
-    if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
+		cur_free_prev=LIST_PREV(cur_free);
+	}
 
 
 
-        //print_blocks_list(heap);
-        cprintf("both \n");
+	//cprintf("p %x  fs %x nx %x ",cur_free_prev,cur_free,cur_free_next);
+
+	//panic("stop");
+
+	if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
 
 
 
-        //case 1 next&prev  is_free
-        cur_free_prev->size=cur_free_prev->size+cur_free->size+cur_free_next->size;
-        cur_free_prev->is_free=1;
-        cur_free_next->is_free=0;
-        cur_free_next->size=0;
-        cur_free->is_free=0;
-        cur_free->size=0;
+		//print_blocks_list(heap);
+		//cprintf("both \n");
 
 
 
-        LIST_REMOVE(&heap,cur_free);
-        LIST_REMOVE(&heap,cur_free_next);
+			//case 1 next&prev  is_free
+			cur_free_prev->size=cur_free_prev->size + cur_free->size +cur_free_next->size;
+			cur_free_prev->is_free=1;
+			cur_free_next->is_free=0;
+			cur_free_next->size=0;
+			cur_free->is_free=0;
+			cur_free->size=0;
+
+
+
+			LIST_REMOVE(&heap,cur_free_next);
+			LIST_REMOVE(&heap,cur_free);
 
 
 
 
-
-    }
-    else if(cur_free_next!=NULL && cur_free_next->is_free){
-
-
-
-        cprintf("next \n");
-
-
-        //print_blocks_list(heap);
-        //case 2 next  is_free
-        cur_free->size=cur_free->size+cur_free_next->size;
-        cur_free->is_free=1;
-        cur_free_next->is_free=0;
-        cur_free_next->size=0;
-
-
-        LIST_REMOVE(&heap,cur_free_next);
-        //print_blocks_list(heap);
-
-        //panic("stop");
-
-    }
-    else if(cur_free_prev!=NULL && cur_free_prev->is_free){
-
-
-        cprintf("pre \n");
-
-        //case 3 prev  is_free
-        cur_free_prev->size=cur_free_prev->size+cur_free->size;
-        cur_free_prev->is_free=1;
-        cur_free->is_free=0;
-        cur_free->size=0;
-        LIST_REMOVE(&heap,cur_free);
+	}
+	else if(cur_free_next!=NULL && cur_free_next->is_free){
 
 
 
-    }
-    else{
-
-        cprintf("concl \n");
-        cur_free->is_free=1;
-    }
+		//cprintf("next \n");
 
 
-    cprintf("after \n");
-    //print_blocks_list(heap);
+		//print_blocks_list(heap);
+	    //case 2 next  is_free
+		cur_free->size=cur_free->size+cur_free_next->size;
+		cur_free->is_free=1;
+		cur_free_next->is_free=0;
+		cur_free_next->size=0;
+
+
+		LIST_REMOVE(&heap,cur_free_next);
+		//print_blocks_list(heap);
+
+		//panic("stop");
+
+	}
+	else if(cur_free_prev!=NULL && cur_free_prev->is_free){
+
+
+		//cprintf("pre \n");
+
+		//case 3 prev  is_free
+		cur_free_prev->size=cur_free_prev->size+cur_free->size;
+		cur_free_prev->is_free=1;
+		cur_free->is_free=0;
+		cur_free->size=0;
+		LIST_REMOVE(&heap,cur_free);
+
+
+
+	}
+	else{
+
+		//cprintf("concl \n");
+		cur_free->is_free=1;
+	}
+
+
+	//cprintf("after \n");
+	//print_blocks_list(heap);
 
 
 
 }
 
-
-
-
-
 //=========================================
 // [4] REALLOCATE BLOCK BY FIRST FIT:
+
+/*
+ * *** if new_size > cur_size
+			if(free momken 2a5od mnoh)
+				if(lw 2l 2l ba2y <=meta_data_size)
+					//5od 2l size bta3 next koloo
+
+			 	else
+			 		//merge w  and create new blk
+
+
+
+		else
+
+ *
+ * */
 //=========================================
 // @author: shahppp
 void *realloc_block_FF(void* va, uint32 new_size) {
@@ -430,10 +519,17 @@ void *realloc_block_FF(void* va, uint32 new_size) {
 
         if (free_size - new_size <= sizeOfMetaData()) {
             //make it free and send to ff
-            free_block(va);
-            return alloc_block_FF(new_size);
 
+        	cprintf("2ywaa\n");
+        	return blk+meta_size;
+
+//            free_block(va);
+//           return alloc_block_FF(new_size);
         }
+
+
+
+
 
         // case:2.2#  if i there are spaces
 
@@ -447,28 +543,53 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         new_blk->is_free = 1;
         new_blk->size = free_size - (new_size);
         LIST_INSERT_AFTER(&heap, blk, new_blk);
+        //blk->is_free=1;
+        if(new_blk->prev_next_info.le_next->is_free==1){
+
+        	new_blk->size=new_blk->size+new_blk->prev_next_info.le_next->size;
+        	new_blk->is_free=1;
+        	new_blk->prev_next_info.le_next->is_free=0;
+        	new_blk->prev_next_info.le_next->size=0;
+
+
+    		LIST_REMOVE(&heap,new_blk->prev_next_info.le_next);
+
+        }
+
+       // free_block(new_blk);
+
         return (blk + meta_size);
 
     }
 
-    // case:3#  if new_size is less than cur_size
+    // case:3#  if new_size is greater than cur_size
     if (free_size < new_size) {
 
 
         // case:3.1#  if i can't use next block
         if (blk->prev_next_info.le_next == NULL ||
             blk->prev_next_info.le_next->is_free == 0 ||
-            blk->prev_next_info.le_next->size + free_size < new_size ||
-            (blk->prev_next_info.le_next->size + free_size > new_size &&
-             blk->prev_next_info.le_next->size + free_size - new_size <= sizeOfMetaData())
+            blk->prev_next_info.le_next->size + free_size < new_size
                 ) {
+
             //make it free and send to ff
             free_block(va);
             return alloc_block_FF(new_size);
         }
 
+        if((blk->prev_next_info.le_next->size + free_size > new_size &&
+             blk->prev_next_info.le_next->size + free_size - new_size <= sizeOfMetaData())){
 
-        // case:3.2#  if i there are spaces
+        	blk->size+=blk->prev_next_info.le_next->size;
+        	blk->prev_next_info.le_next->size=0;
+            blk->prev_next_info.le_next->is_free=0;
+  	        LIST_REMOVE(&heap,blk->prev_next_info.le_next);
+  	        return (blk + meta_size);
+
+        }
+
+
+        // case:3.2#  if there are spaces
 
         // update cur size
         blk->size = new_size+sizeOfMetaData();
@@ -479,7 +600,11 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         new_blk = cur + blk->size;
         new_blk->is_free = 1;
         new_blk->size = free_size+blk->prev_next_info.le_next->size -new_size;
+        blk->prev_next_info.le_next->size=0;
+        blk->prev_next_info.le_next->is_free=0;
+        LIST_REMOVE(&heap,blk->prev_next_info.le_next);
         LIST_INSERT_AFTER(&heap, blk, new_blk);
+
         return (blk + meta_size);
 
     }
