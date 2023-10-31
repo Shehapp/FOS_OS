@@ -91,16 +91,27 @@ void print_blocks_list(struct MemBlock_LIST list)
 //declare the list
 struct MemBlock_LIST heap;
 
+void declare_heap(struct BlockMetaData* first_block){
+
+	LIST_INIT(&heap);
+	LIST_INSERT_HEAD(&heap, first_block);
+}
+
+
+
+
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace)
 {
-	LIST_INIT(&heap);
+
 	//declare the block
 	struct BlockMetaData *first_block ;
 	//LIST_INIT(&first_block);
 	first_block=(struct BlockMetaData *)daStart;
 	first_block->is_free=1;
 	first_block->size=initSizeOfAllocatedSpace;
-	LIST_INSERT_HEAD(&heap, first_block);
+	declare_heap(first_block);
+
+
 //	struct BlockMetaData *blk;
 
 
@@ -186,11 +197,6 @@ void *alloc_block_FF(uint32 size)
 
 			}
 
-			else if(blk->is_free && (blk->size-sizeOfMetaData())==tot_size){
-				panic("hobaaaa");
-				cprintf("2ywa 2ywa momken");
-			}
-
 
 			if(blk->is_free&& (blk->size-sizeOfMetaData()-size)<=16 && (blk->size-sizeOfMetaData()-size)>=0){
 
@@ -220,14 +226,14 @@ void *alloc_block_FF(uint32 size)
 
 		}
 
-		/*void* brk = sbrk(tot_size);
+		void* brk = sbrk(tot_size);
 
 		if(brk==(void *)-1){
+
 			return NULL;
 		}
 		else{
 
-			panic("d5lna sbrk s7 \n" );
 			struct BlockMetaData *new_blk;
 			// address
 			new_blk=brk;
@@ -237,7 +243,7 @@ void *alloc_block_FF(uint32 size)
 
 			LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_blk);
 			return brk+(sizeOfMetaData()/16);
-		}*/
+		}
 
 
 
@@ -362,12 +368,20 @@ void free_block(void *va)
 	//print_blocks_list(heap);
 
 
+/*	const char *src = "SDHGHHK_23waljhKGKsadh,ODa";
+	char* dst=(char*)0xf0010000;
+	str2lower(dst,src);
+	cprintf("%s \n",dst);
+	panic("shehapooooo");*/
+
+
+
+
+
 	//cprintf("Before \n");
 	//print_blocks_list(heap);
 
-
 	//cprintf(" our blk in va %x \n",va);
-
 
 	struct BlockMetaData *cur_free = ((struct BlockMetaData *)va - 1) ;
 
@@ -491,7 +505,6 @@ void free_block(void *va)
  *
  * */
 //=========================================
-// @author: shahppp
 void *realloc_block_FF(void* va, uint32 new_size) {
     //TODO: [PROJECT'23.MS1 - #8] [3] DYNAMIC ALLOCATOR - realloc_block_FF()
 
@@ -510,25 +523,27 @@ void *realloc_block_FF(void* va, uint32 new_size) {
     uint32 meta_size = sizeOfMetaData() / 16;
 
     // case:1#  if new_size is equal cur_size
-    if (new_size == free_size)
-        return blk + meta_size;
+    if (new_size == free_size){
+    	//cprintf("MOMKEN1A7a\n");
+        return blk + meta_size;}
 
     // case:2#  if new_size is less than cur_size
     if (free_size > new_size) {
         // case:2.1#  if i there is no free space to store meta_data or store meta_date with size 0
 
-        if (free_size - new_size <= sizeOfMetaData()) {
+        if (free_size - new_size <= sizeOfMetaData() && (blk->prev_next_info.le_next==NULL ||blk->prev_next_info.le_next->is_free==0) ) {
             //make it free and send to ff
 
-        	cprintf("2ywaa\n");
+        	//cprintf("MOMKEN1\n");
         	return blk+meta_size;
 
-//            free_block(va);
-//           return alloc_block_FF(new_size);
+            /*free_block(va);
+           return alloc_block_FF(new_size);*/
         }
 
 
-
+        // f
+        // 30
 
 
         // case:2.2#  if i there are spaces
@@ -544,17 +559,22 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         new_blk->size = free_size - (new_size);
         LIST_INSERT_AFTER(&heap, blk, new_blk);
         //blk->is_free=1;
-        if(new_blk->prev_next_info.le_next->is_free==1){
+        /*if(new_blk->prev_next_info.le_next!=NULL && new_blk->prev_next_info.le_next->is_free==1){
 
+
+        	cprintf("MOMKEN2\n");
         	new_blk->size=new_blk->size+new_blk->prev_next_info.le_next->size;
         	new_blk->is_free=1;
         	new_blk->prev_next_info.le_next->is_free=0;
         	new_blk->prev_next_info.le_next->size=0;
 
 
-    		LIST_REMOVE(&heap,new_blk->prev_next_info.le_next);
+    		LIST_REMOVE(&heap,LIST_NEXT(new_blk));
 
-        }
+        }*/
+
+    	//cprintf("MOMKEN2\n");
+        free_block(new_blk+1);
 
        // free_block(new_blk);
 
@@ -571,15 +591,18 @@ void *realloc_block_FF(void* va, uint32 new_size) {
             blk->prev_next_info.le_next->is_free == 0 ||
             blk->prev_next_info.le_next->size + free_size < new_size
                 ) {
-
+        	//cprintf("momkensh 3.1\n");
+        	//notlb size 3ndo w ba2y meta ;
             //make it free and send to ff
             free_block(va);
             return alloc_block_FF(new_size);
         }
 
-        if((blk->prev_next_info.le_next->size + free_size > new_size &&
+        if((blk->prev_next_info.le_next->size + free_size >= new_size &&
              blk->prev_next_info.le_next->size + free_size - new_size <= sizeOfMetaData())){
 
+        	//notlb size 3ndo w ba2y meta ;
+        	//cprintf("momkensh 3.1.1\n");
         	blk->size+=blk->prev_next_info.le_next->size;
         	blk->prev_next_info.le_next->size=0;
             blk->prev_next_info.le_next->is_free=0;
@@ -604,7 +627,7 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         blk->prev_next_info.le_next->is_free=0;
         LIST_REMOVE(&heap,blk->prev_next_info.le_next);
         LIST_INSERT_AFTER(&heap, blk, new_blk);
-
+        //cprintf("momkensh 3.2\n");
         return (blk + meta_size);
 
     }

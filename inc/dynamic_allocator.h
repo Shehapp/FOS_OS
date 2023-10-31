@@ -48,7 +48,7 @@ void print_blocks_list(struct MemBlock_LIST list);
 //In KernelHeap: should be implemented inside kern/mem/kheap.c
 //In UserHeap: should be implemented inside lib/uheap.c
 void* sbrk(int increment);
-
+void print_heap();
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace);
 void *alloc_block(uint32 size, int ALLOC_STRATEGY);
 void *alloc_block_FF(uint32 size);

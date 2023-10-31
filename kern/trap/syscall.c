@@ -517,11 +517,15 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 {
 	// Call the function corresponding to the 'syscallno' parameter.
 	// Return any appropriate return value.
+//	if(a1 == 0 ||a2 == 0 ||a3 == 0 ||a4 == 0 ||a5 == 0 )
+//		{sched_kill_env(curenv->env_id);}
+//	else if(a1 > USER_LIMIT ||a2 > USER_LIMIT || a3 > USER_LIMIT ||a4 > USER_LIMIT ||a5 > USER_LIMIT)
+//		{sched_kill_env(curenv->env_id);}
+
 	switch(syscallno)
 	{
 	/*2023*/
 	//TODO: [PROJECT'23.MS1 - #4] [2] SYSTEM CALLS - Add suitable code here
-
 	//=====================================================================
 	case SYS_cputs:
 		sys_cputs((const char*)a1,a2,(uint8)a3);
@@ -577,7 +581,27 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 		//		return 0;
 		//		break;
 		//2022
-
+	case SYS_sbrk:
+		return (uint32)sys_sbrk(a1);
+		break;
+	case SYS_freeUmem:
+		if(a1 == 0 || a1 >= USER_LIMIT || a1 + a2 > USER_LIMIT){
+			sched_kill_env(curenv->env_id);
+		}
+		else{
+			sys_free_user_mem(a1, (uint32)a2);
+		}
+		return 0;
+		break;
+	case SYS_allocUmem:
+		if(a1 == 0 || a1 >= USER_LIMIT || a1 + a2 > USER_LIMIT){
+			sched_kill_env(curenv->env_id);
+		}
+		else{
+			sys_allocate_user_mem(a1, (uint32)a2);
+		}
+		return 0;
+		break;
 	case SYS_disableINTR:
 		sys_disable_interrupt();
 		return 0;
@@ -716,6 +740,7 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 		return 	-E_INVAL;
 		break;
 	}
+
 	//panic("syscall not implemented");
 	return -E_INVAL;
 }

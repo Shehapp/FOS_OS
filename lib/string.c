@@ -315,6 +315,32 @@ char* str2lower(char *dst, const char *src)
 {
 	//TODO: [PROJECT'23.MS1 - #1] [1] PLAY WITH CODE! - str2lower
 	//Comment the following line before start coding...
-	panic("process_command is not implemented yet");
-	return NULL;
+	//panic("process_command is not implemented yet");
+
+
+	/*
+	 * src="Tarek";
+	 * dst->>tarek;
+	 *
+	 */
+	//dst="";
+	int i=0;
+    for(;i<strlen(src);i++) {
+        int found =0;
+        for(char a ='A';a<='Z';a++){
+            if(src[i]-a==0){
+                found=1;
+            }
+
+        }
+        if (found)
+           dst[i] = src[i] + (64/2);
+        else
+            dst[i] = src[i];
+    }
+  dst[i] = '\0';
+
+
+return dst;
+
 }
