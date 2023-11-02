@@ -99,10 +99,15 @@ void declare_heap(struct BlockMetaData* first_block){
 
 
 
+bool is_initialized=0;
 
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace)
 {
 
+	if (initSizeOfAllocatedSpace == 0)
+			return ;
+
+	is_initialized=1;
 	//declare the block
 	struct BlockMetaData *first_block ;
 	//LIST_INIT(&first_block);
@@ -140,8 +145,7 @@ void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpac
 	// 1  2  3  4  5  6
 	//=========================================
 	//DON'T CHANGE THESE LINES=================
-	if (initSizeOfAllocatedSpace == 0)
-		return ;
+
 	//=========================================
 	//=========================================
 
@@ -171,6 +175,8 @@ void *alloc_block_FF(uint32 size)
 
 
 
+
+
 	//print_blocks_list(heap);
 
 
@@ -185,6 +191,18 @@ void *alloc_block_FF(uint32 size)
 	if(size==0){
 		return NULL;
 	}
+
+
+	if(!is_initialized){
+
+		uint32 required_size = size + sizeOfMetaData();
+		uint32 da_start = (uint32)sbrk(required_size);
+
+		uint32 da_break = (uint32)sbrk(0);
+		initialize_dynamic_allocator(da_start,da_break-da_start);
+
+	}
+
 
 	    struct BlockMetaData* blk ;
 		LIST_FOREACH(blk, &heap)

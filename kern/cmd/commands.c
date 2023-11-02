@@ -53,7 +53,6 @@ struct Command commands[] =
 		{"nomodbuff", "disable modified buffer", command_disable_modified_buffer, 0},
 		{"modbuff", "enable modified buffer", command_enable_modified_buffer, 0},
 		{"modbufflength?", "get modified buffer length", command_get_modified_buffer_length, 0},
-		{"tst", "run the given test", command_tst, -1},
 
 		//*****************************//
 		/* COMMANDS WITH ONE ARGUMENT */
@@ -85,11 +84,11 @@ struct Command commands[] =
 		{ "rum", "reads one byte from specific location in kernel or a given environment" ,command_readusermem, -1},
 		{ "schedMLFQ", "switch the scheduler to MLFQ with given # queues & quantums", command_sch_MLFQ, -1},
 		{"load", "load a single user program to mem with status = NEW", commnad_load_env, -1},
+		{"tst", "run the given test", command_tst, -1},
 };
 
 //Number of commands = size of the array / size of command structure
 uint32 NUM_OF_COMMANDS  = (sizeof(commands)/sizeof(struct Command));
-
 
 
 /***** Implementations of basic kernel command prompt commands *****/
@@ -399,11 +398,13 @@ struct Env * CreateEnv(int number_of_arguments, char **arguments)
 
 			break;
 		}
+#if USE_KHEAP == 0
 		if(pageWSSize > __PWS_MAX_SIZE)
 		{
 			cprintf("ERROR: size of WS must be less than or equal to %d... aborting", __PWS_MAX_SIZE);
 			return NULL;
 		}
+#endif
 		if(isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX))
 		{
 			if (LRUSecondListSize > pageWSSize - 1)
