@@ -5,6 +5,7 @@
 #include "memory_manager.h"
 
 
+struct MemBlock_LIST alloc_page_heap;
 int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate, uint32 daLimit)
 {
 	//TODO: [PROJECT'23.MS2 - #01] [1] KERNEL HEAP - initialize_kheap_dynamic_allocator()
@@ -14,12 +15,31 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	//Return:
 	//	On success: 0
 	//	Otherwise (if no memory OR initial size exceed the given limit): E_NO_MEM
+	start=(void*)daStart;
+	hard_limit=(void*)daLimit;
+	brk=(void*)daStart+initSizeToAllocate;
 
-	//Comment the following line(s) before start coding...
-	panic("not implemented yet");
+
+	//	initialize_dynamic_allocator(daStart,initSizeToAllocate);
+
+	void* Hlimit =ROUNDUP(hard_limit,PAGE_SIZE);
+		for(void* i=start;i<Hlimit;i=i+PAGE_SIZE)
+			{
+
+				struct FrameInfo *pll=NULL;
+
+				allocate_frame(&pll);
+				map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
+
+				cprintf("%x<-- \n , ",i);
+			}
+
+
+			//initialize_dynamic_allocator(daStart,initSizeToAllocate);
+	//panic("not implemented yet");
 	return 0;
-}
 
+}
 void* sbrk(int increment)
 {
 	//TODO: [PROJECT'23.MS2 - #02] [1] KERNEL HEAP - sbrk()
@@ -40,21 +60,57 @@ void* sbrk(int increment)
 
 	//MS2: COMMENT THIS LINE BEFORE START CODING====
 	return (void*)-1 ;
-	panic("not implemented yet");
+//	panic("not implemented yet");
 }
 
 
 void* kmalloc(unsigned int size)
 {
-	//TODO: [PROJECT'23.MS2 - #03] [1] KERNEL HEAP - kmalloc()
-	//refer to the project presentation and documentation for details
-	// use "isKHeapPlacementStrategyFIRSTFIT() ..." functions to check the current strategy
+	    //TODO: [PROJECT'23.MS2 - #03] [1] KERNEL HEAP - kmalloc()
+	    //refer to the project presentation and documentation for details
+	    // use "isKHeapPlacementStrategyFIRSTFIT() ..." functions to check the current strategy
+	int mm =ROUNDUP(KERNEL_HEAP_MAX-((uint32)hard_limit+PAGE_SIZE),PAGE_SIZE);
+	mm=mm/PAGE_SIZE;
+		cprintf("max=> %d",mm);
 
-	//change this "return" according to your answer
-	kpanic_into_prompt("kmalloc() is not implemented yet...!!");
-	return NULL;
+		cprintf("size => %d \n",size);
+
+	    // block alloc      2kb
+	    if (size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
+	        cprintf("1st\n");
+
+	    }
+
+	    // size must be multiple of DYN_ALLOC_MAX_BLOCK_SIZE
+
+
+
+	    int nsize=ROUNDUP(size,PAGE_SIZE);
+	    int num_of_alloc=nsize/PAGE_SIZE;
+	    if (size > DYN_ALLOC_MAX_BLOCK_SIZE){
+
+
+	    			/*for(int i=0;i<num_of_alloc;i++)
+	    				{
+
+	    					struct FrameInfo *pll=NULL;
+
+	    					allocate_frame(&pll);
+	    					map_frame(ptr_page_directory,pll,,PERM_WRITEABLE);
+
+	    					cprintf("%x<-- \n , ",i);
+	    				}*/
+
+
+	    }
+
+
+
+	    cprintf("third\n");
+
+	//	kpanic_into_prompt("kmalloc() is not implemented yet...!!");
+	    return NULL;
 }
-
 void kfree(void* virtual_address)
 {
 	//TODO: [PROJECT'23.MS2 - #04] [1] KERNEL HEAP - kfree()
