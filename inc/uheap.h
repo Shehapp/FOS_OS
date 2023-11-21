@@ -7,14 +7,28 @@
 #define UHP_PLACE_NEXTFIT 	0x3
 #define UHP_PLACE_WORSTFIT 	0x4
 
+
+struct U_heap
+{
+    bool is_free;//4byte
+    uint32 vir_addf;//4byte
+    uint32 pages; //4byte
+    LIST_ENTRY(U_heap) prev_next_info;
+};
+
+LIST_HEAD(UHeap_list, U_heap);
+
+struct UHeap_list UHlist;
+
 //2020
 #define UHP_USE_BUDDY 0
-
+//
 void *malloc(uint32 size);
 void* smalloc(char *sharedVarName, uint32 size, uint8 isWritable);
 void* sget(int32 ownerEnvID, char *sharedVarName);
 void free(void* virtual_address);
 void sfree(void* virtual_address);
 void *realloc(void *virtual_address, uint32 new_size);
+
 
 #endif

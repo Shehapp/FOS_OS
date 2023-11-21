@@ -17,6 +17,8 @@ void InitializeUHeap()
 	}
 }
 
+
+
 //==================================================================================//
 //============================ REQUIRED FUNCTIONS ==================================//
 //==================================================================================//
@@ -30,6 +32,21 @@ void* sbrk(int increment)
 	return (void*) sys_sbrk(increment);
 }
 
+
+/*void print_pagesH(struct UHeap_list list)
+{
+	cprintf("HHHHHHHHHHHHHHHHHHHHH\n");
+	struct U_heap* blk ;
+
+	cprintf("PAGE_ALLOC List:\n");
+	LIST_FOREACH(blk, &list)
+	{
+
+		cprintf("(pages: %d, isFree: %d ,VA: %x)\n", blk->pages, blk->is_free,blk->vir_addf) ;
+	}
+	cprintf("HHHHHHHHHHHHHHHHHHHHH\n");
+
+}*/
 //=================================
 // [2] ALLOCATE SPACE IN USER HEAP:
 //=================================
@@ -38,16 +55,76 @@ void* malloc(uint32 size)
 	//==============================================================
 	//DON'T CHANGE THIS CODE========================================
 	InitializeUHeap();
-	if (size == 0) return NULL ;
+	if (size == 0)
+		return NULL ;
 	//==============================================================
 	//TODO: [PROJECT'23.MS2 - #09] [2] USER HEAP - malloc() [User Side]
 	// Write your code here, remove the panic and write your code
-	panic("malloc() is not implemented yet...!!");
+	//panic("malloc() is not implemented yet...!!");
+	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
+		cprintf("block_alooccc -----\n");
+	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
+	            void* ret = alloc_block_FF(size);
+
+	            return ret;
+	        }
+	        else if(sys_isUHeapPlacementStrategyBESTFIT()){
+	            void* ret = alloc_block_BF(size);
+	            return ret;
+	        }
+	    }
+
+
+	 else{
+
+			cprintf("page_alooccc -----\n");
+			cprintf("%d ----- size \n",size);
+	        struct U_heap *page;
+	        uint32 rounded_size = ROUNDUP(size, PAGE_SIZE);
+	        int num_of_req_pages = rounded_size/PAGE_SIZE;
+
+			cprintf("%d ----- size \n",size);
+			cprintf("%d <----list_size",LIST_SIZE(&UHlist));
+			//print_pagesH(UHlist);
+
+	        LIST_FOREACH(page, &UHlist)if(page->is_free == 1 && page->pages >= num_of_req_pages){
+	            int i = page->vir_addf;
+	            for(int g = num_of_req_pages; g > 0;g--){
+	                i+=PAGE_SIZE;
+					cprintf("%x -----  \n",(void*)page->vir_addf);
+	            }
+
+
+				cprintf("%x -----  \n",(void*)page->vir_addf);
+	        page->is_free = 0;
+	        sys_allocate_user_mem(page->vir_addf,size);
+	        if(page-> pages == num_of_req_pages)
+	            return (void*)page->vir_addf;
+
+			cprintf("%x -----  \n",(void*)page->vir_addf);
+	        struct U_heap *new_block;
+	        new_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
+	        new_block->pages = page->pages - num_of_req_pages;
+	        new_block->is_free = 1;
+	        new_block->vir_addf = i;
+	        page->pages = num_of_req_pages;
+
+
+
+			cprintf("%x -----  \n",(void*)page->vir_addf);
+	        return (void*)page->vir_addf;
+
+	            }
+	        }
+	    //Use sys_isUHeapPlacementStrategyFIRSTFIT()   and    sys_isUHeapPlacementStrategyBESTFIT()
+	  //to check the current strategy
+
 	return NULL;
+}
+
+
 	//Use sys_isUHeapPlacementStrategyFIRSTFIT() and	sys_isUHeapPlacementStrategyBESTFIT()
 	//to check the current strategy
-
-}
 
 //=================================
 // [3] FREE SPACE FROM USER HEAP:

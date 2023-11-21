@@ -70,8 +70,8 @@ void print_blocks_list(struct MemBlock_LIST list)
 	cprintf("\nDynAlloc Blocks List:\n");
 	LIST_FOREACH(blk, &list)
 	{
-		void*ptr=(void*)blk;
-		cprintf("(size: %d, isFree: %d ,points_to: %x)\n", blk->size, blk->is_free,ptr) ;
+
+		cprintf("(size: %d, isFree: %d ,points_to: %x)\n", blk->size, blk->is_free,blk) ;
 	}
 	cprintf("=========================================\n");
 
@@ -103,6 +103,8 @@ bool is_initialized=0;
 
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace)
 {
+
+	cprintf("%d,,,.,.,,.,\n",((KERNEL_HEAP_MAX-KERNEL_HEAP_START)/PAGE_SIZE));
 
 	if (initSizeOfAllocatedSpace == 0)
 			return ;
@@ -174,6 +176,10 @@ void *alloc_block_FF(uint32 size)
 {
 
 
+
+
+		//cprintf("%d,,,.,.,,.,\n",((KERNEL_HEAP_MAX-KERNEL_HEAP_START)/PAGE_SIZE));
+		//cprintf("%d,,,.,.,,.,\n",((dlimit-KERNEL_HEAP_START)/PAGE_SIZE));
 
 
 
@@ -252,15 +258,17 @@ void *alloc_block_FF(uint32 size)
 		}
 		else{
 
+			//return brk;
+
 			struct BlockMetaData *new_blk;
 			// address
 			new_blk=brk;
 			// empty
 			new_blk->is_free=0;
-			new_blk->size=tot_size;
+			new_blk->size=4096;
 
 			LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_blk);
-			return brk+(sizeOfMetaData()/16);
+			return new_blk+(sizeOfMetaData()/16);
 		}
 
 

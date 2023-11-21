@@ -773,6 +773,8 @@ void * create_user_directory()
 //===============================================
 // 7) INITIALIZE DYNAMIC ALLOCATOR OF UHEAP:
 //===============================================
+
+
 void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 daLimit)
 {
 	//TODO: [PROJECT'23.MS2 - #07] [2] USER HEAP - initialize_uheap_dynamic_allocator()
@@ -780,6 +782,22 @@ void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 da
 	//	1) there's no initial allocations for the dynamic allocator of the user heap (=0)
 	//	2) call the initialize_dynamic_allocator(..) to complete the initialization
 //	panic("not implemented yet");
+
+	//cprintf("%d1212 @@@@@",sizeof(struct K_heap_sh));
+	struct U_heap *first_block;
+	first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
+	first_block->vir_addf = daLimit + PAGE_SIZE;
+	first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
+	first_block->is_free=1;
+	cprintf("%x <----- dah bta3 hard limit+4 expected  \n",(first_block->vir_addf ));
+
+	LIST_INIT(&UHlist);
+	LIST_INSERT_HEAD(&UHlist, first_block);
+	//print_pagesK(UHlist);
+	cprintf("%d<---- list size initialization ",LIST_SIZE(&UHlist));
+
+// momken ukoon malloc bwzetha
+
 }
 
 //========================================================

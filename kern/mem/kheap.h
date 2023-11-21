@@ -45,7 +45,8 @@ int numOfKheapVACalls ;
 //TODO: [PROJECT'23.MS2 - #01] [1] KERNEL HEAP - initialization: add suitable code here
 void *brk;
 void *start;
-void *hard_limit;
+void *kernel_limit;
+uint32 dlimit;
 //====================================================================================
 
 #endif // FOS_KERN_KHEAP_H_

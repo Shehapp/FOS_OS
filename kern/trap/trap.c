@@ -328,6 +328,7 @@ void fault_handler(struct Trapframe *tf)
 		num_repeated_fault++ ;
 		if (num_repeated_fault == 3)
 		{
+			cprintf("%x <----- \n",fault_va);
 			print_trapframe(tf);
 			panic("Failed to handle fault at va=%x: same va is faulted for 3 successive times\n", fault_va);
 		}
@@ -378,6 +379,24 @@ void fault_handler(struct Trapframe *tf)
 			//TODO: [PROJECT'23.MS2 - #13] [3] PAGE FAULT HANDLER - Check for invalid pointers
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
 			//your code is here
+			cprintf("%x FAULTED ADDRESS\n");
+			uint32 page_permissions = pt_get_page_permissions(curenv->env_page_directory ,fault_va);
+			if( (fault_va>=KERNEL_HEAP_START && fault_va <KERNEL_HEAP_MAX)){
+				sched_kill_env(curenv->env_id);
+			}
+			else if(!(page_permissions &  PERM_WRITEABLE) ){
+
+				sched_kill_env(curenv->env_id);
+			}
+
+			/*else if ((page_permissions & PERM_PRESENT)){
+
+				sched_kill_env(curenv->env_id);
+			}*/
+
+
+
+
 
 			/*============================================================================================*/
 		}
