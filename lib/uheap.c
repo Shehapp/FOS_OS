@@ -29,11 +29,11 @@ void InitializeUHeap()
 /*2023*/
 void* sbrk(int increment)
 {
+
+	//cprintf("55555555555555555555");
 	return (void*) sys_sbrk(increment);
 }
-
-
-/*void print_pagesH(struct UHeap_list list)
+void print_pagesH(struct UHeap_list list)
 {
 	cprintf("HHHHHHHHHHHHHHHHHHHHH\n");
 	struct U_heap* blk ;
@@ -46,10 +46,13 @@ void* sbrk(int increment)
 	}
 	cprintf("HHHHHHHHHHHHHHHHHHHHH\n");
 
-}*/
+
+}
+
 //=================================
 // [2] ALLOCATE SPACE IN USER HEAP:
 //=================================
+bool init =0;
 void* malloc(uint32 size)
 {
 	//==============================================================
@@ -57,12 +60,35 @@ void* malloc(uint32 size)
 	InitializeUHeap();
 	if (size == 0)
 		return NULL ;
+
+
+	cprintf("________________________NEW_ALLOC__________USER \n");
+	struct U_heap *first_block;
+
+
+	if(init == 0 ){
+	cprintf("-------------initialize_first_alooccc1 -----\n");
+	first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
+	first_block->vir_addf = 0x82000000 + PAGE_SIZE;
+	//cprintf("block_alooccc -----\n");
+	first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
+	first_block->is_free=1;
+	cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
+
+
+	LIST_INIT(&UHlist);
+	LIST_INSERT_HEAD(&UHlist, first_block);
+
+	init = 1 ;
+	}
+
+
 	//==============================================================
 	//TODO: [PROJECT'23.MS2 - #09] [2] USER HEAP - malloc() [User Side]
 	// Write your code here, remove the panic and write your code
 	//panic("malloc() is not implemented yet...!!");
 	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
-		cprintf("block_alooccc -----\n");
+		cprintf("-----------block_alooccc -----\n");
 	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
 	            void* ret = alloc_block_FF(size);
 
@@ -77,31 +103,35 @@ void* malloc(uint32 size)
 
 	 else{
 
-			cprintf("page_alooccc -----\n");
+			//cprintf("page_alooccc -----\n");
 			cprintf("%d ----- size \n",size);
 	        struct U_heap *page;
 	        uint32 rounded_size = ROUNDUP(size, PAGE_SIZE);
 	        int num_of_req_pages = rounded_size/PAGE_SIZE;
 
-			cprintf("%d ----- size \n",size);
-			cprintf("%d <----list_size",LIST_SIZE(&UHlist));
+			//cprintf("%d ----- size \n",size);
+			//cprintf("%d <----list_size",LIST_SIZE(&UHlist));
 			//print_pagesH(UHlist);
-
+	        cprintf("________UH list before insert_________\n");
+			print_pagesH(UHlist);
 	        LIST_FOREACH(page, &UHlist)if(page->is_free == 1 && page->pages >= num_of_req_pages){
 	            int i = page->vir_addf;
 	            for(int g = num_of_req_pages; g > 0;g--){
 	                i+=PAGE_SIZE;
-					cprintf("%x -----  \n",(void*)page->vir_addf);
+					//cprintf("%x -----  \n",(void*)page->vir_addf);
 	            }
 
 
-				cprintf("%x -----  \n",(void*)page->vir_addf);
+				//cprintf("%x -----  \n",(void*)page->vir_addf);
 	        page->is_free = 0;
+
+	        cprintf("________call alloc user mem_________\n");
 	        sys_allocate_user_mem(page->vir_addf,size);
 	        if(page-> pages == num_of_req_pages)
 	            return (void*)page->vir_addf;
 
-			cprintf("%x -----  \n",(void*)page->vir_addf);
+	        cprintf("________create new block of U_heap_________\n");
+			//cprintf("%x -----  \n",(void*)page->vir_addf);
 	        struct U_heap *new_block;
 	        new_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
 	        new_block->pages = page->pages - num_of_req_pages;
@@ -109,9 +139,13 @@ void* malloc(uint32 size)
 	        new_block->vir_addf = i;
 	        page->pages = num_of_req_pages;
 
+	 		LIST_INSERT_AFTER(&UHlist,page, new_block);
+	        print_pagesH(UHlist);
 
 
-			cprintf("%x -----  \n",(void*)page->vir_addf);
+			cprintf("------------ENDmalloc-----------\n ");
+			cprintf("------------WORJING SET-----------\n ");
+		//	env_page_ws_print();
 	        return (void*)page->vir_addf;
 
 	            }

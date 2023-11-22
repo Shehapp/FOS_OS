@@ -77,6 +77,16 @@ struct SharingVarInfo
 LIST_HEAD(WS_List, WorkingSetElement);		// Declares 'struct WS_list'
 //======================================================================
 
+//struct U_heap
+//{
+//    bool is_free;//4byte
+//    uint32 vir_addf;//4byte
+//    uint32 pages; //4byte
+//    LIST_ENTRY(U_heap) prev_next_info;
+//};
+//
+//LIST_HEAD(UHeap_list, U_heap);
+
 struct Env {
 	//================
 	/*MAIN INFO...*/
@@ -88,6 +98,12 @@ struct Env {
 	unsigned env_status;			// Status of the environment
 	int priority;					// Current priority
 	char prog_name[PROGNAMELEN];	// Program name (to print it via USER.cprintf in multitasking)
+	//struct UHeap_list UHlist;
+
+
+	 	 uint32 dastart;
+	    uint32 seg_brk;
+	    uint32 dalimit;
 
 	//================
 	/*ADDRESS SPACE*/

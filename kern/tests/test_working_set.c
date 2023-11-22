@@ -108,7 +108,9 @@ int sys_check_LRU_lists_free(uint32* list_content, int list_size)
 int sys_check_WS_list(uint32* WS_list_content, int actual_WS_list_size, uint32 last_WS_element_content, bool chk_status)
 {
 #if USE_KHEAP
+
 	cprintf("CURRENT WS CONTENT BEFORE CHECKING:\n");
+	//cprintf("%d chck status <---\n",chk_status);
 	env_page_ws_print(curenv);
 	struct Env* env = curenv;
 	int WS_list_validation = 1;
@@ -152,12 +154,15 @@ int sys_check_WS_list(uint32* WS_list_content, int actual_WS_list_size, uint32 l
 			{
 				if (ROUNDDOWN(ptr_WS_element->virtual_address, PAGE_SIZE) == ROUNDDOWN(WS_list_content[idx_expected_list], PAGE_SIZE))
 				{
+
+					//cprintf("Wooooww \n");
 					found = 1;
 					break;
 				}
 			}
 			if (!found)
 			{
+				//cprintf("AZAAY \n");
 				WS_list_validation = 0;
 				break;
 			}
@@ -185,6 +190,7 @@ int sys_check_WS_list(uint32* WS_list_content, int actual_WS_list_size, uint32 l
 		}
 	}
 
+	//cprintf("%d\n",WS_list_validation);
 	return WS_list_validation;
 #else
 	panic("sys_check_WS_list: this function is intended to be used when USE_KHEAP = 1");

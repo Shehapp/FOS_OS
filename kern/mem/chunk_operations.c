@@ -133,6 +133,8 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_WRITEABLE ,PERM_PRESENT);
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_MARK ,PERM_PRESENT);
+		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_USER,PERM_PRESENT);
+
 
 		//0x00000FFF
 		// set bit marked

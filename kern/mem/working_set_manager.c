@@ -115,12 +115,13 @@ void env_page_ws_print(struct Env *e)
 			char isModified = ((perm&PERM_MODIFIED) ? 1 : 0);
 			char isUsed= ((perm&PERM_USED) ? 1 : 0);
 			char isBuffered= ((perm&PERM_BUFFERED) ? 1 : 0);
+			char isMark= ((perm&PERM_MARK) ? 1 : 0);
 
 			cprintf("%d: %x",i, virtual_address);
 
 			//2021
-			cprintf(", used= %d, modified= %d, buffered= %d, time stamp= %x, sweeps_cnt= %d",
-					isUsed, isModified, isBuffered, time_stamp, wse->sweeps_counter) ;
+			cprintf(", used= %d, modified= %d, buffered= %d, time stamp= %x, sweeps_cnt= %d mark= %d",
+					isUsed, isModified, isBuffered, time_stamp, wse->sweeps_counter,isMark) ;
 
 			if(wse == e->page_last_WS_element)
 			{
@@ -128,6 +129,7 @@ void env_page_ws_print(struct Env *e)
 			}
 			cprintf("\n");
 			i++;
+			cprintf("MAX SIZE WORK SET %d \n",e->page_WS_max_size);
 		}
 		for (; i < e->page_WS_max_size; ++i)
 		{

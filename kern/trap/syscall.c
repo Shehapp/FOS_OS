@@ -482,7 +482,7 @@ void* sys_sbrk(int increment)
 {
 	//TODO: [PROJECT'23.MS2 - #08] [2] USER HEAP - Block Allocator - sys_sbrk() [Kernel Side]
 	//MS2: COMMENT THIS LINE BEFORE START CODING====
-	return (void*)-1 ;
+	//return (void*)-1 ;
 	//====================================================
 
 	/*2023*/
@@ -505,6 +505,65 @@ void* sys_sbrk(int increment)
 	 * 		You might have to undo any operations you have done so far in this case.
 	 */
 	struct Env* env = curenv; //the current running Environment to adjust its break limit
+
+	cprintf("__________________SBRK IN_________________\n");
+
+	if(increment==0){
+					return (void*)curenv->seg_brk;
+				}
+
+		int move_size=ROUNDUP(increment,PAGE_SIZE);
+
+			void* new_brk=(void*)curenv->seg_brk+move_size;
+
+			if(new_brk>= (void*)curenv->dalimit)
+			{panic("------------------------>size too large");}
+
+			if(increment>0)
+			{
+
+				/*for(void*i=(void*)curenv->seg_brk;i<=new_brk;i=i+PAGE_SIZE){
+					struct FrameInfo *pll=NULL;
+						allocate_frame(&pll);
+
+						pll->va = (int)i;
+						map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
+
+					}*/
+
+				curenv->seg_brk = curenv->seg_brk+move_size;
+				return new_brk-move_size;
+
+			}
+			if(increment<0){
+
+
+				increment=increment*-1;
+	//
+	//			if(increment<=PAGE_SIZE){
+	//
+	//				brk = new_brk-increment;
+	//				return new_brk-increment; 
+	//
+	//			}
+
+
+				//int move_size=ROUNDUP(increment,PAGE_SIZE);
+				void* new_brk=(void*)curenv->seg_brk-increment;
+				/*for(void*i=(void*)curenv->seg_brk;i>=new_brk;i=i-PAGE_SIZE)
+				{
+
+					unmap_frame(ptr_page_directory,(int)i);
+
+			    }*/
+				curenv->seg_brk  = (int)new_brk;
+				return new_brk;
+
+			}
+			return 0;
+
+	    //MS2: COMMENT THIS LINE BEFORE START CODING====
+	 //   panic("not implemented yet");
 
 
 }

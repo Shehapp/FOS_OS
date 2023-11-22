@@ -123,9 +123,17 @@ void* sbrk(int increment)
      * 	3) Allocating additional pages for a kernel dynamic allocator will fail if the free frames are exhausted
      * 		or the break exceed the limit of the dynamic allocator. If sbrk fails, kernel should panic(...)
      */
-	if(increment==0){
-				return brk;
+/*	cprintf("%x <---- obba brk \n\n", brk);
+	if(brk == (void*)-1){
+		cprintf("????? \n");
+		brk =(void*)0xF6000000;
 
+	}*/
+
+
+	if(increment==0){
+		//cprintf("????? \n");
+				return brk;
 			}
 
 	int move_size=ROUNDUP(increment,PAGE_SIZE);
@@ -220,13 +228,13 @@ void* kmalloc(unsigned int size) {
 
     if (size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
         cprintf("1st\n");
-      //  print_heap();
+       // print_heap();
         cprintf("%d <--- needed size",size);
        if( isKHeapPlacementStrategyFIRSTFIT()){
        void* ptra = alloc_block_FF(size);
        cprintf("%x <--- alloc ", ptra);
        cprintf("%x <--- brk ", brk);
-     //  print_heap();
+       //print_heap();
        return ptra;
        }
 
@@ -276,7 +284,7 @@ void* kmalloc(unsigned int size) {
  		LIST_INSERT_AFTER(&hlist,page, new_one);
  		page->pages = needed_pages;
  		cprintf("after allocation",size);
- 		//print_pages(hlist);
+ 		print_pages(hlist);
 
 		return  (void *)page->vir_addf;
     }
@@ -503,6 +511,7 @@ unsigned int kheap_virtual_address(unsigned int physical_address)
 
     //EFFICIENT IMPLEMENTATION ~O(1) IS REQUIRED ==================
 
+	//cprintf("hhhhh-%x -hhhhhhhh\n",physical_address);
 	//cprintf("HELOOOO \n");
 	uint32 off = (physical_address & 0x00000FFF);
 	uint32 frm_ph = (physical_address & 0xFFFFF000);
@@ -515,6 +524,7 @@ unsigned int kheap_virtual_address(unsigned int physical_address)
 	allPAs[i] = (ptr_table[j] & 0xFFFFF000) + offset;*/
 
 
+    //cprintf("1 -- virtual-> %x  physical-> %x \n",va,physical_address);
 
 
     //change this "return" according to your answer
@@ -529,7 +539,7 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
   //  panic("kheap_physical_address() is not implemented yet...!!");
 
 	//(ptr_table[j] & 0xFFFFF000)+(va & 0x00000FFF)
-
+//cprintf("hhhhh-%x -hhhhhhhh\n",virtual_address);
 		uint32 *ptr_t = NULL;
 	    int ret = get_page_table(ptr_page_directory,virtual_address,&ptr_t);
 
@@ -539,6 +549,9 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
 
 		//cprintf("%x vA <---> %x phy ",virtual_address,physical_addr);
 	    //change this "return" according to your answer
+
+
+	    //cprintf("virtual-> %x  physical-> %x \n",virtual_address,physical_addr);
 	    return physical_addr;
 
 }

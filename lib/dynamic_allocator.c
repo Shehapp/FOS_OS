@@ -104,8 +104,9 @@ bool is_initialized=0;
 void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpace)
 {
 
-	cprintf("%d,,,.,.,,.,\n",((KERNEL_HEAP_MAX-KERNEL_HEAP_START)/PAGE_SIZE));
+	//cprintf("%d,,,.,.,,.,\n",((KERNEL_HEAP_MAX-KERNEL_HEAP_START)/PAGE_SIZE));
 
+	//brk = (void*)(daStart+initSizeOfAllocatedSpace);
 	if (initSizeOfAllocatedSpace == 0)
 			return ;
 
@@ -198,14 +199,19 @@ void *alloc_block_FF(uint32 size)
 		return NULL;
 	}
 
+		if(!is_initialized){
 
-	if(!is_initialized){
-
+		cprintf("@YWA\n");
 		uint32 required_size = size + sizeOfMetaData();
+
+		//cprintf("%x  %d<----- our brk",sbrk(0),sbrk(0));
 		uint32 da_start = (uint32)sbrk(required_size);
 
 		uint32 da_break = (uint32)sbrk(0);
+
+		cprintf("%x---- %x---- %d \n",da_start,da_break,da_break-da_start);
 		initialize_dynamic_allocator(da_start,da_break-da_start);
+
 
 	}
 
