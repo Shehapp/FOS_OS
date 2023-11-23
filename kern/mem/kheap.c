@@ -58,7 +58,12 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 
 	// store blks
 	void* Hlimit =ROUNDUP(kernel_limit,PAGE_SIZE);
-	for(void* i=start;i<Hlimit;i=i+PAGE_SIZE)
+	int k  =ROUNDUP(initSizeToAllocate,PAGE_SIZE);
+	//void* l7d =ROUNDUP(initSizeToAllocate,PAGE_SIZE);
+	int num_pages = k /PAGE_SIZE;
+
+	void* i=start;
+	for(int j =0 ;j<num_pages;j=j+1)
 	{
 
 		struct FrameInfo *pll=NULL;
@@ -66,9 +71,21 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 		allocate_frame(&pll);
 		pll->va = (int)i;
 		map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
-
+		i+=PAGE_SIZE;
 		//				cprintf("%x<-- \n , ",i);
 	}
+//
+//	for(void* i=start;i<;i=i+PAGE_SIZE)
+//	{
+//
+//		struct FrameInfo *pll=NULL;
+//
+//		allocate_frame(&pll);
+//		pll->va = (int)i;
+//		map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
+//
+//		//				cprintf("%x<-- \n , ",i);
+//	}
 	initialize_dynamic_allocator(daStart,initSizeToAllocate);
 
 
@@ -105,7 +122,7 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 
 //
 
-
+bool sbr_in =0;
 void* sbrk(int increment)
 {
     //TODO: [PROJECT'23.MS2 - #02] [1] KERNEL HEAP - sbrk()
@@ -130,33 +147,46 @@ void* sbrk(int increment)
 
 	}*/
 
+	/*if(sbr_in){
+		brk;
+		sbr_in=0;
+		return brk;
+	}*/
 
+	sbr_in=1;
 	if(increment==0){
 		//cprintf("????? \n");
+		sbr_in=0;
 				return brk;
 			}
 
+	//cprintf("_____________sbrk in kernel-______________\n");
 	int move_size=ROUNDUP(increment,PAGE_SIZE);
+	//print_pages(hlist);
+	//	void* new_brk=brk+move_size;
 
-		void* new_brk=brk+move_size;
-
-		if(new_brk>=kernel_limit)
+		if(brk + move_size>=kernel_limit)
 		{panic("------------------------>size too large");}
 
 		if(increment>0)
 		{
 
-			for(void*i=brk;i<=new_brk;i=i+PAGE_SIZE){
+
+			//cprintf("_____________sbrk in kernel-______________\n");
+			for(void*i=brk;i<brk + move_size;i=i+PAGE_SIZE){
 				struct FrameInfo *pll=NULL;
 					allocate_frame(&pll);
-
 					pll->va = (int)i;
 					map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
 
-				}
+					//print_heap();
 
+				}
+			//cprintf("brk -->%x    old brk----> \n",brk,brk-move_size);
+			//cprintf("brk -->%x    old brk----> \n",brk,brk-move_size);
+			sbr_in=0;
 			brk = brk+move_size;
-			return new_brk-move_size;
+			return brk-move_size;
 
 		}
 		if(increment<0){
@@ -173,15 +203,16 @@ void* sbrk(int increment)
 
 
 			//int move_size=ROUNDUP(increment,PAGE_SIZE);
-			void* new_brk=brk-increment;
-			for(void*i=brk;i>=new_brk;i=i-PAGE_SIZE)
+			//void* new_brk=brk-increment;
+			for(void*i=brk;i>=brk-increment;i=i-PAGE_SIZE)
 			{
 
 				unmap_frame(ptr_page_directory,(int)i);
 
 		    }
-			brk  = new_brk;
-			return new_brk;
+			brk  = brk-increment;
+			sbr_in=0;
+			return brk-increment;
 
 		}
 		return 0;
@@ -227,14 +258,14 @@ void* kmalloc(unsigned int size) {
 	// cprintf("brk ---> %x\n",brk);
 
     if (size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
-        cprintf("1st\n");
+       // cprintf("1st\n");
        // print_heap();
-        cprintf("%d <--- needed size",size);
+        //cprintf("%d <--- needed size",size);
        if( isKHeapPlacementStrategyFIRSTFIT()){
        void* ptra = alloc_block_FF(size);
-       cprintf("%x <--- alloc ", ptra);
-       cprintf("%x <--- brk ", brk);
-       //print_heap();
+       //cprintf("%x <--- alloc ", ptra);
+       //cprintf("%x <--- brk ", brk);
+      // print_heap();
        return ptra;
        }
 
@@ -253,15 +284,15 @@ void* kmalloc(unsigned int size) {
 
     //print_pages(hlist);
 
-    cprintf("2nd \n");
+    //cprintf("2nd \n");
     size = ROUNDUP(size, PAGE_SIZE);
 
     int needed_pages = size / PAGE_SIZE;
 
-	cprintf("\n- pages =>  %d \n", needed_pages);
+	//cprintf("\n- pages =>  %d \n", needed_pages);
 
     LIST_FOREACH(page, &hlist)if (page->is_free == 1 && page->pages >= needed_pages) {
-    	cprintf("\n iam here \n");
+    	//cprintf("\n iam here \n");
     	uint32 i = page->vir_addf;
         for ( uint32 g=needed_pages; g > 0; i = i + PAGE_SIZE, g--) {
 
@@ -272,19 +303,25 @@ void* kmalloc(unsigned int size) {
             map_frame(ptr_page_directory, pll, (int) i, PERM_WRITEABLE | PERM_PRESENT);
 
         }
-    	page->is_free = 0;
+        page->is_free = 0;
     	if(page->pages == needed_pages)
     		return (void *)page->vir_addf;
 
+    	//print_pages(hlist);
     	struct K_heap_sh *new_one=NULL;
+    	//cprintf("OBBBBA \n");
+    	//print_heap();
    		new_one = (struct K_heap_sh*) alloc_block_FF(sizeof(struct K_heap_sh));
+   		//cprintf("OBBBBA \n");
    		new_one->vir_addf = i;
    		new_one->pages=page->pages - needed_pages;
   		new_one->is_free=1;
  		LIST_INSERT_AFTER(&hlist,page, new_one);
  		page->pages = needed_pages;
- 		cprintf("after allocation",size);
- 		print_pages(hlist);
+    	page->is_free = 0;
+ 		//cprintf("after allocation",size);
+ 		//print_pages(hlist);
+    	//page->is_free = 0;
 
 		return  (void *)page->vir_addf;
     }
@@ -309,7 +346,7 @@ void* kmalloc(unsigned int size) {
 void kfree(void* virtual_address)
 {
 
-	print_pages(hlist);
+	//print_pages(hlist);
 
     //TODO: [PROJECT'23.MS2 - #04] [1] KERNEL HEAP - kfree()
     //refer to the project presentation and documentation for details
@@ -319,14 +356,14 @@ void kfree(void* virtual_address)
 	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
 
 
-		cprintf("fffffffffffffffffffffffff\n");
-		cprintf("fffffffffffffffffffffffff\n");
-		cprintf("fffffffffffffffffffffffff\n");
+		//cprintf("fffffffffffffffffffffffff\n");
+		//cprintf("fffffffffffffffffffffffff\n");
+		//cprintf("fffffffffffffffffffffffff\n");
 
-		print_heap();
+		//print_heap();
 		free_block(virtual_address);
-		cprintf("AFTER \n");
-		print_heap();
+		//cprintf("AFTER \n");
+		//print_heap();
 		return ;
 
 	}
@@ -363,7 +400,7 @@ void kfree(void* virtual_address)
 		if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
 
 
-				cprintf("next&prev\n");
+				//cprintf("next&prev\n");
 
 				//case 1 next&prev  is_free
 				cur_free_prev->pages=cur_free_prev->pages + cur_free->pages +cur_free_next->pages;
@@ -407,7 +444,7 @@ void kfree(void* virtual_address)
 		else if(cur_free_next!=NULL && cur_free_next->is_free){
 
 
-			cprintf("next\n");
+			//cprintf("next\n");
 			cur_free->pages=cur_free->pages+cur_free_next->pages;
 			cur_free->is_free=1;
 			cur_free_next->is_free=0;
@@ -435,7 +472,7 @@ void kfree(void* virtual_address)
 		else if(cur_free_prev!=NULL && cur_free_prev->is_free){
 
 
-			cprintf("prev\n");
+			//cprintf("prev\n");
 			//cprintf("pre \n");
 
 			//case 3 prev  is_free
@@ -446,7 +483,7 @@ void kfree(void* virtual_address)
 
 
 
-			cprintf("did i 1 \n");
+			//cprintf("did i 1 \n");
 
 			uint32 frame_mapped = cur_free->vir_addf ;
 			for(int i=0;i<cur_free->pages;i++)
@@ -456,11 +493,11 @@ void kfree(void* virtual_address)
 
 			}
 
-			cprintf("did i 2 \n");
+			//cprintf("did i 2 \n");
 			cur_free->pages=0;
 			void*ptr = cur_free;
-			cprintf("%x <------ptr \n",ptr);
-			cprintf("%x <------ptr-16 \n",ptr-16);
+			//cprintf("%x <------ptr \n",ptr);
+			//cprintf("%x <------ptr-16 \n",ptr-16);
 			print_heap();
 
 			free_block(ptr);
@@ -546,10 +583,6 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
 	    uint32 table_entry = ptr_t[PTX(virtual_address)];
 
 	    uint32 physical_addr =  (table_entry & 0xFFFFF000) + (virtual_address & 0x00000FFF);
-
-		//cprintf("%x vA <---> %x phy ",virtual_address,physical_addr);
-	    //change this "return" according to your answer
-
 
 	    //cprintf("virtual-> %x  physical-> %x \n",virtual_address,physical_addr);
 	    return physical_addr;

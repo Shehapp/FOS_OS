@@ -54,6 +54,7 @@ enum
 	SYS_sbrk,
 	SYS_freeUmem,
 	SYS_allocUmem,
+	SYS_getHardLimit,
 	/*2024*/
 	//TODO: [PROJECT'23.MS1 - #3] [2] SYSTEM CALLS - Add suitable code here
 

@@ -104,14 +104,14 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
         {
         	if((fault_va >=USTACKBOTTOM &&  fault_va <USTACKTOP ) || ( fault_va >=USER_HEAP_START &&  fault_va <USER_HEAP_MAX)){
 
-                map_frame(curenv->env_page_directory, pll,fault_va, PERM_PRESENT | PERM_USER | PERM_WRITEABLE) ;
+                map_frame(curenv->env_page_directory, pll,fault_va, PERM_USER | PERM_WRITEABLE) ;
 
                 pll->va=fault_va;
 
         	}
         	else{
         		cprintf("HMMM\n");
-        		//sched_kill_env(curenv->env_id);
+        		sched_kill_env(curenv->env_id);
         	}
         }
         else {
@@ -119,7 +119,7 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
         	 cprintf("_______________HMMM____________\n");
         	 cprintf("_______________HMMM____________\n");
 
-            map_frame(curenv->env_page_directory, pll,fault_va, PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+            map_frame(curenv->env_page_directory, pll,fault_va,  PERM_USER | PERM_WRITEABLE);
             pll->va=fault_va;
         }
         struct WorkingSetElement*  work = env_page_ws_list_create_element(curenv,fault_va);

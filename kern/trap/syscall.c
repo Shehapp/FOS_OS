@@ -274,6 +274,13 @@ void sys_allocate_user_mem(uint32 virtual_address, uint32 size)
 	return;
 }
 
+
+void * sys_hard_limit(){
+
+	return (void*)curenv->dalimit;
+}
+
+
 void sys_allocate_chunk(uint32 virtual_address, uint32 size, uint32 perms)
 {
 	allocate_chunk(curenv->env_page_directory, virtual_address, size, perms);
@@ -506,7 +513,7 @@ void* sys_sbrk(int increment)
 	 */
 	struct Env* env = curenv; //the current running Environment to adjust its break limit
 
-	cprintf("__________________SBRK IN_________________\n");
+	//cprintf("__________________SBRK IN_________________\n");
 
 	if(increment==0){
 					return (void*)curenv->seg_brk;
@@ -515,21 +522,16 @@ void* sys_sbrk(int increment)
 		int move_size=ROUNDUP(increment,PAGE_SIZE);
 
 			void* new_brk=(void*)curenv->seg_brk+move_size;
-
+			//cprintf("%x <---- hard limit enviroment \n",curenv->dalimit);
 			if(new_brk>= (void*)curenv->dalimit)
-			{panic("------------------------>size too large");}
+			{
+
+				return (void*)-1;
+				//panic("------------------------>size too large");
+			}
 
 			if(increment>0)
 			{
-
-				/*for(void*i=(void*)curenv->seg_brk;i<=new_brk;i=i+PAGE_SIZE){
-					struct FrameInfo *pll=NULL;
-						allocate_frame(&pll);
-
-						pll->va = (int)i;
-						map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
-
-					}*/
 
 				curenv->seg_brk = curenv->seg_brk+move_size;
 				return new_brk-move_size;
@@ -661,6 +663,9 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 		}
 		return 0;
 		break;
+	case SYS_getHardLimit:
+	        return (uint32)sys_hard_limit();
+	        break;
 	case SYS_disableINTR:
 		sys_disable_interrupt();
 		return 0;

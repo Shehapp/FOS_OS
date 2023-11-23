@@ -812,7 +812,7 @@ void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 da
 	 	e->dastart = daStart;
 	    e->seg_brk = daStart;
 	    e->dalimit = daLimit;
-	brk=(void*)daStart;
+	//brk=(void*)daStart;
 //	struct U_heap *first_block;
 //	cprintf("%x <----, ",daStart);
 //	cprintf("-------------initialize_first_alooccc1 -----\n");

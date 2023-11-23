@@ -62,25 +62,7 @@ void* malloc(uint32 size)
 		return NULL ;
 
 
-	cprintf("________________________NEW_ALLOC__________USER \n");
-	struct U_heap *first_block;
-
-
-	if(init == 0 ){
-	cprintf("-------------initialize_first_alooccc1 -----\n");
-	first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
-	first_block->vir_addf = 0x82000000 + PAGE_SIZE;
-	//cprintf("block_alooccc -----\n");
-	first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
-	first_block->is_free=1;
-	cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
-
-
-	LIST_INIT(&UHlist);
-	LIST_INSERT_HEAD(&UHlist, first_block);
-
-	init = 1 ;
-	}
+	//cprintf("________________________NEW_ALLOC__________USER \n");
 
 
 	//==============================================================
@@ -88,10 +70,10 @@ void* malloc(uint32 size)
 	// Write your code here, remove the panic and write your code
 	//panic("malloc() is not implemented yet...!!");
 	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
-		cprintf("-----------block_alooccc -----\n");
 	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
 	            void* ret = alloc_block_FF(size);
 
+	    		//cprintf("-----------block_alooccc -----\n");
 	            return ret;
 	        }
 	        else if(sys_isUHeapPlacementStrategyBESTFIT()){
@@ -102,6 +84,24 @@ void* malloc(uint32 size)
 
 
 	 else{
+
+			struct U_heap *first_block;
+
+
+			if(init == 0 ){
+			cprintf("-------------initialize_first_alooccc1 -----\n");
+			first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
+			first_block->vir_addf = 0x82000000 + PAGE_SIZE;
+			//cprintf("block_alooccc -----\n");
+			first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
+			first_block->is_free=1;
+			cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
+
+			LIST_INIT(&UHlist);
+			LIST_INSERT_HEAD(&UHlist, first_block);
+
+			init = 1 ;
+			}
 
 			//cprintf("page_alooccc -----\n");
 			cprintf("%d ----- size \n",size);
@@ -140,7 +140,7 @@ void* malloc(uint32 size)
 	        page->pages = num_of_req_pages;
 
 	 		LIST_INSERT_AFTER(&UHlist,page, new_block);
-	        print_pagesH(UHlist);
+	        //print_pagesH(UHlist);
 
 
 			cprintf("------------ENDmalloc-----------\n ");
@@ -167,8 +167,147 @@ void free(void* virtual_address)
 {
 	//TODO: [PROJECT'23.MS2 - #11] [2] USER HEAP - free() [User Side]
 	// Write your code here, remove the panic and write your code
-	panic("free() is not implemented yet...!!");
+
+	cprintf("______________d5lna free userheap__________\n");
+	cprintf("%d free now ",sys_calculate_free_frames());
+	// if it's in blk
+	cprintf("needed_free_virtual_address->%x \n",virtual_address);
+		if(virtual_address>=(void*)USER_HEAP_START && (void*)0x82000000>virtual_address){
+			free_block(virtual_address);
+			return ;
+		}
+
+
+
+	// if page
+		if(virtual_address>= (void*)0x82000000&& virtual_address<=(void*)USER_HEAP_MAX){
+
+				 struct U_heap *cur_free;
+				LIST_FOREACH(cur_free, &UHlist){
+
+					//serach for exact virtual address
+					if((void*)cur_free->vir_addf==virtual_address)
+						break;
+				}
+
+
+
+
+				struct U_heap *cur_free_prev=NULL;
+				struct U_heap *cur_free_next=NULL;
+
+
+				if(cur_free->prev_next_info.le_next!=NULL){
+
+					cur_free_next=LIST_NEXT(cur_free);
+				}
+
+
+				if(cur_free->prev_next_info.le_prev != NULL){
+
+					cur_free_prev=LIST_PREV(cur_free);
+				}
+
+				//next & prev has free pages
+				if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
+
+
+						cprintf("next&prev\n");
+
+						//case 1 next&prev  is_free
+						cur_free_prev->pages=cur_free_prev->pages + cur_free->pages +cur_free_next->pages;
+						cur_free_prev->is_free=1;
+						cur_free_next->is_free=0;
+						cur_free->is_free=0;
+
+
+						//umap all unused frames
+
+						sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
+
+
+						cur_free_next->pages=0;
+						cur_free->pages=0;
+
+						void*ptr = cur_free_next;
+						void*ptr2 = cur_free;
+						free_block(ptr);
+						free_block(ptr2);
+
+						LIST_REMOVE(&UHlist,cur_free_next);
+						LIST_REMOVE(&UHlist,cur_free);
+
+				}
+				  //case 2 next  is_free
+				else if(cur_free_next!=NULL && cur_free_next->is_free){
+
+
+					cprintf("next\n");
+					cur_free->pages=cur_free->pages+cur_free_next->pages;
+					cur_free->is_free=1;
+					cur_free_next->is_free=0;
+
+
+					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+
+
+					cur_free_next->pages=0;
+					void*ptr = cur_free_next;
+					free_block(ptr);
+					LIST_REMOVE(&UHlist,cur_free_next);
+					//print_blocks_list(heap);
+
+					//panic("stop");
+
+				}
+
+				else if(cur_free_prev!=NULL && cur_free_prev->is_free){
+
+
+					cprintf("prev\n");
+					//cprintf("pre \n");
+
+					//case 3 prev  is_free
+					cur_free_prev->pages=cur_free_prev->pages+cur_free->pages;
+					cur_free_prev->is_free=1;
+					cur_free->is_free=0;
+					//cur_free->size=0;
+
+
+					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+
+
+					cur_free->pages=0;
+					void*ptr = cur_free;
+					//cprintf("%x <------ptr \n",ptr);
+					//cprintf("%x <------ptr-16 \n",ptr-16);
+					//print_heap();
+
+					free_block(ptr);
+
+					//print_heap();
+					LIST_REMOVE(&UHlist,cur_free);
+
+
+				}
+				else{
+
+
+					cprintf("%d",cur_free->pages);
+					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+					cprintf("%d free now ",sys_calculate_free_frames());
+					cur_free->is_free=1;
+				}
+
+
+
+				return;
+			}
+
+
+		panic("invalid address");
 }
+
 
 
 //=================================

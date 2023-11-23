@@ -209,7 +209,7 @@ void *alloc_block_FF(uint32 size)
 
 		uint32 da_break = (uint32)sbrk(0);
 
-		cprintf("%x---- %x---- %d \n",da_start,da_break,da_break-da_start);
+		//cprintf("%x---- %x---- %d \n",da_start,da_break,da_break-da_start);
 		initialize_dynamic_allocator(da_start,da_break-da_start);
 
 
@@ -249,6 +249,7 @@ void *alloc_block_FF(uint32 size)
 				blk->is_free=0;
 				LIST_INSERT_AFTER(&heap,blk,new_blk);
 				//print_blocks_list(heap);
+				//print_blocks_list(heap);
 				return (blk+(sizeOfMetaData()/16));
 
 			}
@@ -270,11 +271,14 @@ void *alloc_block_FF(uint32 size)
 			// address
 			new_blk=brk;
 			// empty
-			new_blk->is_free=0;
+			new_blk->is_free=1;
 			new_blk->size=4096;
-
 			LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_blk);
-			return new_blk+(sizeOfMetaData()/16);
+			//print_blocks_list(heap);
+
+			//print_blocks_list(heap);
+			//return alloc_block_FF(size) ;
+			return (alloc_block_FF(size)) ;
 		}
 
 
