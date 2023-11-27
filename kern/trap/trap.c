@@ -379,34 +379,40 @@ void fault_handler(struct Trapframe *tf)
 			//TODO: [PROJECT'23.MS2 - #13] [3] PAGE FAULT HANDLER - Check for invalid pointers
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
 			//your code is here
-			//cprintf("%x FAULTED ADDRESS\n");
-			//cprintf("%x FAULTED ADDRESS\n");
-	        fault_va=ROUNDDOWN(fault_va,PAGE_SIZE);
+			//cprintf("%x FAULTED ADDRESS\n",fault_va);
+			//cprintf("%x FAULTED ADDRESS\n",fault_va);
+			uint32 fa = fault_va;
+	        //fault_va=ROUNDDOWN(fault_va,PAGE_SIZE);
 			uint32 page_permissions = pt_get_page_permissions(curenv->env_page_directory ,fault_va);
-			//cprintf("%d <----- page_permisioin\n",page_permissions);
+			//cprintf("%d <----- page_permisioin mark\n",page_permissions &PERM_MARK);
+			 if((fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX )){
 
-			if( (fault_va>=KERNEL_HEAP_START && fault_va <KERNEL_HEAP_MAX)){
-				//cprintf("A7oooo \n");
-				sched_kill_env(curenv->env_id);
-			}
-			else if((page_permissions & PERM_MARK) && !(page_permissions &  PERM_WRITEABLE) ){
-				cprintf("______1 - kill_________\n");
-				sched_kill_env(curenv->env_id);
-			}
-			else if((fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX )){
 				if(fault_va <=curenv->dalimit) {
-					// do nothing
+
 				}
-				else if(!(page_permissions & PERM_MARK)){
-					cprintf("______3 - kill_________\n");
+				// do nothing	}
+			else if(!(page_permissions & PERM_MARK)){
+						//cprintf("______3 - kill_________\n");
 					sched_kill_env(curenv->env_id);
 				}
 			}
-			else if (page_permissions !=0 && !(page_permissions & PERM_MARK)){
-				cprintf("______2 - kill_________\n");
-							sched_kill_env(curenv->env_id);
+
+			 else if( !(fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX) && (page_permissions & PERM_PRESENT) ){
+
+				sched_kill_env(curenv->env_id);
 			}
-			// momken tkoon marked // first time
+			else if((page_permissions & PERM_PRESENT) && !(page_permissions &  PERM_WRITEABLE) ){
+				//cprintf("______1 - kill_________\n");
+				sched_kill_env(curenv->env_id);
+			}
+
+			else if (page_permissions !=0 && !(page_permissions & PERM_MARK)){
+				//cprintf("______2 - kill_________\n");
+							sched_kill_env(curenv->env_id);
+			}else if (fa == 0){
+				//cprintf("______5 - kill_________\n");
+				sched_kill_env(curenv->env_id);
+			}
 
 
 

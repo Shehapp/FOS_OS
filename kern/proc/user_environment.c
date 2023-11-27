@@ -795,36 +795,14 @@ void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 da
 	//Remember:
 	//	1) there's no initial allocations for the dynamic allocator of the user heap (=0)
 	//	2) call the initialize_dynamic_allocator(..) to complete the initialization
-//	panic("not implemented yet");
-	//cprintf("%x<----- dalinit \n",daLimit);
-	//cprintf("%d1212 @@@@@",sizeof(struct K_heap_sh));
-//	struct U_heap *first_block;
-//	first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
-//	first_block->vir_addf = daLimit + PAGE_SIZE;
-//	first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
-//	first_block->is_free=1;
-//	cprintf("%x <----- dah bta3 hard limit+4 expected  \n",(first_block->vir_addf ));
-//
-//	LIST_INIT(&(e->UHlist));
-//	LIST_INSERT_HEAD(&(e->UHlist), first_block);
-	//print_pagesuh(UHlist);
-	//cprintf("%d<---- list size initialization ",LIST_SIZE(&UHlist));
+//	panic("not implemented yet");imit+4 expected  \n",(first_block->vir_addf ));
 	 	e->dastart = daStart;
 	    e->seg_brk = daStart;
 	    e->dalimit = daLimit;
 	//brk=(void*)daStart;
 //	struct U_heap *first_block;
 //	cprintf("%x <----, ",daStart);
-//	cprintf("-------------initialize_first_alooccc1 -----\n");
-//	first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
-//	first_block->vir_addf = 0x82000000 + PAGE_SIZE;
-//	//cprintf("block_alooccc -----\n");
-//	first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
-//	first_block->is_free=1;
-//	cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
 //
-//	LIST_INIT(&UHlist);
-//	LIST_INSERT_HEAD(&UHlist, first_block);
 
 	initialize_dynamic_allocator(daStart,0);
 

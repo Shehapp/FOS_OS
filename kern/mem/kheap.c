@@ -95,7 +95,7 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	pll->va = daLimit;
 	map_frame(ptr_page_directory,pll,daLimit,PERM_WRITEABLE | PERM_PRESENT);*/
 
-	print_heap();
+	//print_heap();
 
 
 	//cprintf("%d1212 @@@@@",sizeof(struct K_heap_sh));
@@ -109,9 +109,9 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	LIST_INSERT_HEAD(&hlist, first_block);
 
 
-	print_heap();
+	//print_heap();
 
-	cprintf("\n all pages =>  %d \n",first_block->pages );
+	//cprintf("\n all pages =>  %d \n",first_block->pages );
 
 
 	//panic("not implemented yet");
@@ -166,7 +166,9 @@ void* sbrk(int increment)
 	//	void* new_brk=brk+move_size;
 
 		if(brk + move_size>=kernel_limit)
-		{panic("------------------------>size too large");}
+		{
+			panic("no available Memory in kernel");
+		}
 
 		if(increment>0)
 		{
@@ -352,7 +354,8 @@ void kfree(void* virtual_address)
     //refer to the project presentation and documentation for details
     // Write your code here, remove the panic and write your code
     //panic("kfree() is not implemented yet...!!");
-	cprintf("needed_free_virtual_address->%x \n",virtual_address);
+
+	//cprintf("needed_free_virtual_address->%x \n",virtual_address);
 	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
 
 
@@ -498,11 +501,11 @@ void kfree(void* virtual_address)
 			void*ptr = cur_free;
 			//cprintf("%x <------ptr \n",ptr);
 			//cprintf("%x <------ptr-16 \n",ptr-16);
-			print_heap();
+			//print_heap();
 
 			free_block(ptr);
 
-			print_heap();
+			//print_heap();
 			LIST_REMOVE(&hlist,cur_free);
 
 

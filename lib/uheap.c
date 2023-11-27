@@ -69,6 +69,7 @@ void* malloc(uint32 size)
 	//TODO: [PROJECT'23.MS2 - #09] [2] USER HEAP - malloc() [User Side]
 	// Write your code here, remove the panic and write your code
 	//panic("malloc() is not implemented yet...!!");
+
 	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
 	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
 	            void* ret = alloc_block_FF(size);
@@ -89,13 +90,13 @@ void* malloc(uint32 size)
 
 
 			if(init == 0 ){
-			cprintf("-------------initialize_first_alooccc1 -----\n");
+			//cprintf("-------------initialize_first_alooccc1 -----\n");
 			first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
 			first_block->vir_addf = 0x82000000 + PAGE_SIZE;
 			//cprintf("block_alooccc -----\n");
 			first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
 			first_block->is_free=1;
-			cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
+			//cprintf("%x <----- first block var  \n",(first_block->vir_addf ));
 
 			LIST_INIT(&UHlist);
 			LIST_INSERT_HEAD(&UHlist, first_block);
@@ -104,7 +105,7 @@ void* malloc(uint32 size)
 			}
 
 			//cprintf("page_alooccc -----\n");
-			cprintf("%d ----- size \n",size);
+			//cprintf("%d ----- size \n",size);
 	        struct U_heap *page;
 	        uint32 rounded_size = ROUNDUP(size, PAGE_SIZE);
 	        int num_of_req_pages = rounded_size/PAGE_SIZE;
@@ -112,8 +113,8 @@ void* malloc(uint32 size)
 			//cprintf("%d ----- size \n",size);
 			//cprintf("%d <----list_size",LIST_SIZE(&UHlist));
 			//print_pagesH(UHlist);
-	        cprintf("________UH list before insert_________\n");
-			print_pagesH(UHlist);
+	       // cprintf("________UH list before insert_________\n");
+			//print_pagesH(UHlist);
 	        LIST_FOREACH(page, &UHlist)if(page->is_free == 1 && page->pages >= num_of_req_pages){
 	            int i = page->vir_addf;
 	            for(int g = num_of_req_pages; g > 0;g--){
@@ -125,12 +126,12 @@ void* malloc(uint32 size)
 				//cprintf("%x -----  \n",(void*)page->vir_addf);
 	        page->is_free = 0;
 
-	        cprintf("________call alloc user mem_________\n");
+	       // cprintf("________call alloc user mem_________\n");
 	        sys_allocate_user_mem(page->vir_addf,size);
 	        if(page-> pages == num_of_req_pages)
 	            return (void*)page->vir_addf;
 
-	        cprintf("________create new block of U_heap_________\n");
+	        //cprintf("________create new block of U_heap_________\n");
 			//cprintf("%x -----  \n",(void*)page->vir_addf);
 	        struct U_heap *new_block;
 	        new_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
@@ -143,8 +144,8 @@ void* malloc(uint32 size)
 	        //print_pagesH(UHlist);
 
 
-			cprintf("------------ENDmalloc-----------\n ");
-			cprintf("------------WORJING SET-----------\n ");
+			//cprintf("------------ENDmalloc-----------\n ");
+			//cprintf("------------WORJING SET-----------\n ");
 		//	env_page_ws_print();
 	        return (void*)page->vir_addf;
 
@@ -168,10 +169,10 @@ void free(void* virtual_address)
 	//TODO: [PROJECT'23.MS2 - #11] [2] USER HEAP - free() [User Side]
 	// Write your code here, remove the panic and write your code
 
-	cprintf("______________d5lna free userheap__________\n");
-	cprintf("%d free now ",sys_calculate_free_frames());
+	//cprintf("______________d5lna free userheap__________\n");
+	//cprintf("%d free now ",sys_calculate_free_frames());
 	// if it's in blk
-	cprintf("needed_free_virtual_address->%x \n",virtual_address);
+	//cprintf("needed_free_virtual_address->%x \n",virtual_address);
 		if(virtual_address>=(void*)USER_HEAP_START && (void*)0x82000000>virtual_address){
 			free_block(virtual_address);
 			return ;
@@ -212,7 +213,7 @@ void free(void* virtual_address)
 				if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
 
 
-						cprintf("next&prev\n");
+						//cprintf("next&prev\n");
 
 						//case 1 next&prev  is_free
 						cur_free_prev->pages=cur_free_prev->pages + cur_free->pages +cur_free_next->pages;
@@ -242,7 +243,7 @@ void free(void* virtual_address)
 				else if(cur_free_next!=NULL && cur_free_next->is_free){
 
 
-					cprintf("next\n");
+					//cprintf("next\n");
 					cur_free->pages=cur_free->pages+cur_free_next->pages;
 					cur_free->is_free=1;
 					cur_free_next->is_free=0;
@@ -264,7 +265,7 @@ void free(void* virtual_address)
 				else if(cur_free_prev!=NULL && cur_free_prev->is_free){
 
 
-					cprintf("prev\n");
+					//cprintf("prev\n");
 					//cprintf("pre \n");
 
 					//case 3 prev  is_free
@@ -293,9 +294,10 @@ void free(void* virtual_address)
 				else{
 
 
-					cprintf("%d",cur_free->pages);
+					//cprintf("%d free now ",sys_calculate_free_frames());
+					//cprintf("%d",cur_free->pages);
 					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
-					cprintf("%d free now ",sys_calculate_free_frames());
+					//cprintf("%d free now ",sys_calculate_free_frames());
 					cur_free->is_free=1;
 				}
 

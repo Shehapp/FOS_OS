@@ -201,7 +201,7 @@ void *alloc_block_FF(uint32 size)
 
 		if(!is_initialized){
 
-		cprintf("@YWA\n");
+		//cprintf("@YWA\n");
 		uint32 required_size = size + sizeOfMetaData();
 
 		//cprintf("%x  %d<----- our brk",sbrk(0),sbrk(0));
@@ -266,19 +266,28 @@ void *alloc_block_FF(uint32 size)
 		else{
 
 			//return brk;
+		struct BlockMetaData *need_b;
+		struct BlockMetaData *new_b;
+						// address
+		need_b=brk;
+						// empty
+		need_b->is_free=0;
+		need_b->size=(tot_size);
 
-			struct BlockMetaData *new_blk;
-			// address
-			new_blk=brk;
-			// empty
-			new_blk->is_free=1;
-			new_blk->size=4096;
-			LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_blk);
-			//print_blocks_list(heap);
+		new_b=brk+(tot_size);
+		new_b->is_free=1;
+		new_b->size=4096-(tot_size);
 
-			//print_blocks_list(heap);
-			//return alloc_block_FF(size) ;
-			return (alloc_block_FF(size)) ;
+		LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), need_b);
+		LIST_INSERT_AFTER(&heap,  LIST_LAST(&heap), new_b);
+
+		//print_blocks_list(heap);
+		//print_blocks_list(heap);
+		//return alloc_block_FF(size) ;
+		//cprintf("size - > time %d",LIST_SIZE(&heap));
+
+		return (need_b+(sizeOfMetaData()/16));
+
 		}
 
 

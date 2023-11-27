@@ -153,30 +153,31 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
 	/*==========================================================================*/
 	//TODO: [PROJECT'23.MS2 - #12] [2] USER HEAP - free_user_mem() [Kernel Side]
-	cprintf("______HERE WE GO AGAIN________");
+	//cprintf("______HERE WE GO AGAIN________");
 	// Write your code here, remove the panic and write your code
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
-	cprintf("pages -> %d\n",pages);
+	//cprintf("pages -> %d\n",pages);
 
 		for(void* i=(void*)virtual_address;i< ((void*)size+virtual_address);i+=PAGE_SIZE){
 
 			//cprintf("HI --%x \n",i);
 			uint32 *ptr_t ;
-			get_page_table(e->env_page_directory,(int)i,&ptr_t);
+		get_page_table(e->env_page_directory,(int)i,&ptr_t);
 		if(ptr_t !=NULL){
 
-			pt_set_page_permissions(e->env_page_directory,(int)i,PERM_WRITEABLE ,PERM_MARK);
+//			pt_set_page_permissions(e->env_page_directory,(int)i,PERM_WRITEABLE ,PERM_MARK);
+			uint32 pp =pt_get_page_permissions(e->env_page_directory,(int)i);
+			if(pp & PERM_PRESENT){
 
+				env_page_ws_invalidate(e,(int)i);
+				unmap_frame(e->env_page_directory,(int) i);
+			}
 		}
-			//pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_PRESENT, 0);
-		if(i != (void*) 0x82200000){
-			unmap_frame(e->env_page_directory,(int)i);
-		}
-
-			env_page_ws_invalidate(e,(int)i);
+	if(ptr_t !=NULL){
+		pt_set_page_permissions(e->env_page_directory,(int) i,PERM_WRITEABLE,PERM_MARK);
+	}
 			pf_remove_env_page(e,(int)i);
 
-			//un_map pages from ram
 
 		}
 

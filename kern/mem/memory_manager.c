@@ -452,6 +452,7 @@ void unmap_frame(uint32 *ptr_page_directory, uint32 virtual_address)
 	{
 		if (ptr_frame_info->isBuffered && !CHECK_IF_KERNEL_ADDRESS((uint32)virtual_address))
 			cprintf("WARNING: Freeing BUFFERED frame at va %x!!!\n", virtual_address) ;
+
 		decrement_references(ptr_frame_info);
 		ptr_frame_info->va=0;
 
@@ -459,6 +460,7 @@ void unmap_frame(uint32 *ptr_page_directory, uint32 virtual_address)
 		/*NEW'23 el7:)
 		 * TODO: [DONE] unmap_frame(): KEEP THE VALUES OF THE AVAILABLE BITS*/
 		uint32 pte_available_bits = ptr_page_table[PTX(virtual_address)] & PERM_AVAILABLE;
+		//cprintf("%x dah mfrood 23mllo freee<--- %x \n",ptr_page_table[PTX(virtual_address)],virtual_address);
 		ptr_page_table[PTX(virtual_address)] = pte_available_bits;
 		/*********************************************************************************/
 

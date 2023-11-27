@@ -51,6 +51,7 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 		if (!found)
 		{
 			ptr_WS_element = NULL;
+			//instead of a loop i need exact address of working set
 			LIST_FOREACH(ptr_WS_element, &(e->SecondList))
 			{
 				if(ROUNDDOWN(ptr_WS_element->virtual_address,PAGE_SIZE) == ROUNDDOWN(virtual_address,PAGE_SIZE))
@@ -66,7 +67,7 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 	else
 	{
 		struct WorkingSetElement *wse;
-		LIST_FOREACH(wse, &(e->page_WS_list))
+		/*LIST_FOREACH(wse, &(e->page_WS_list))
 		{
 			if(ROUNDDOWN(wse->virtual_address,PAGE_SIZE) == ROUNDDOWN(virtual_address,PAGE_SIZE))
 			{
@@ -74,14 +75,22 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 				{
 					e->page_last_WS_element = LIST_NEXT(wse);
 				}
-				cprintf("%x ws-->viraddr ",wse->virtual_address);
+				//cprintf("%x ws-->viraddr ",wse->virtual_address);
 				LIST_REMOVE(&(e->page_WS_list), wse);
 
 				kfree(wse);
 
 				break;
 			}
-		}
+		}*/
+		uint32 *ptr_t;
+		//cprintf("%x vir--> nned to unap from working set\n",virtual_address);
+		struct FrameInfo * fr =  get_frame_info(e->env_page_directory ,virtual_address , &ptr_t);
+		wse =fr->element;
+		//cprintf("%x vir--> nned to unap from working fr->element\n",fr->element);
+		LIST_REMOVE(&(e->page_WS_list), wse);
+		kfree(wse);
+
 	}
 }
 
@@ -134,7 +143,7 @@ void env_page_ws_print(struct Env *e)
 		}
 		for (; i < e->page_WS_max_size; ++i)
 		{
-			cprintf("EMPTY LOCATION");
+			//cprintf("EMPTY LOCATION");
 		}
 	}
 }

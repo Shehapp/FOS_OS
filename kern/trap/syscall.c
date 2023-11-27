@@ -523,9 +523,9 @@ void* sys_sbrk(int increment)
 
 			void* new_brk=(void*)curenv->seg_brk+move_size;
 			//cprintf("%x <---- hard limit enviroment \n",curenv->dalimit);
-			if(new_brk>= (void*)curenv->dalimit)
+			if(new_brk> (void*)curenv->dalimit)
 			{
-
+				//cprintf("WOOOWoooWOOW \n ");
 				return (void*)-1;
 				//panic("------------------------>size too large");
 			}
@@ -552,12 +552,12 @@ void* sys_sbrk(int increment)
 
 				//int move_size=ROUNDUP(increment,PAGE_SIZE);
 				void* new_brk=(void*)curenv->seg_brk-increment;
-				/*for(void*i=(void*)curenv->seg_brk;i>=new_brk;i=i-PAGE_SIZE)
+				for(void*i=(void*)curenv->seg_brk;i>=new_brk;i=i-PAGE_SIZE)
 				{
 
 					unmap_frame(ptr_page_directory,(int)i);
 
-			    }*/
+			    }
 				curenv->seg_brk  = (int)new_brk;
 				return new_brk;
 

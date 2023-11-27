@@ -110,14 +110,14 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 
         	}
         	else{
-        		cprintf("HMMM\n");
+        		//cprintf("HMMM\n");
         		sched_kill_env(curenv->env_id);
         	}
         }
         else {
 
-        	 cprintf("_______________HMMM____________\n");
-        	 cprintf("_______________HMMM____________\n");
+        	 //cprintf("_______________HMMM____________\n");
+        	// cprintf("_______________HMMM____________\n");
 
             map_frame(curenv->env_page_directory, pll,fault_va,  PERM_USER | PERM_WRITEABLE);
             pll->va=fault_va;
@@ -125,7 +125,11 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
         struct WorkingSetElement*  work = env_page_ws_list_create_element(curenv,fault_va);
         LIST_INSERT_TAIL(&curenv->page_WS_list,work);
 
-        //env_page_ws_print(curenv);
+        uint32 *ptr_t;
+        struct FrameInfo * fr =  get_frame_info(curenv->env_page_directory ,fault_va, &ptr_t);
+        fr->element= work;
+
+       // env_page_ws_print(curenv);
 
 
         if(LIST_SIZE(&curenv->page_WS_list) == (curenv->page_WS_max_size)){
