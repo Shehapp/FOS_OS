@@ -92,7 +92,7 @@ void* malloc(uint32 size)
 			if(init == 0 ){
 			//cprintf("-------------initialize_first_alooccc1 -----\n");
 			first_block = (struct U_heap*) alloc_block_FF(sizeof(struct U_heap));
-			first_block->vir_addf = 0x82000000 + PAGE_SIZE;
+			first_block->vir_addf = (int)sys_get_hard_limit() + PAGE_SIZE;
 			//cprintf("block_alooccc -----\n");
 			first_block->pages = ((USER_HEAP_MAX - first_block->vir_addf)>>12);
 			first_block->is_free=1;
@@ -173,7 +173,7 @@ void free(void* virtual_address)
 	//cprintf("%d free now ",sys_calculate_free_frames());
 	// if it's in blk
 	//cprintf("needed_free_virtual_address->%x \n",virtual_address);
-		if(virtual_address>=(void*)USER_HEAP_START && (void*)0x82000000>virtual_address){
+		if(virtual_address>=(void*)USER_HEAP_START && sys_get_hard_limit()>virtual_address){
 			free_block(virtual_address);
 			return ;
 		}
@@ -181,7 +181,7 @@ void free(void* virtual_address)
 
 
 	// if page
-		if(virtual_address>= (void*)0x82000000&& virtual_address<=(void*)USER_HEAP_MAX){
+		if(virtual_address>= sys_get_hard_limit()&& virtual_address<=(void*)USER_HEAP_MAX){
 
 				 struct U_heap *cur_free;
 				LIST_FOREACH(cur_free, &UHlist){

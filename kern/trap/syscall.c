@@ -275,7 +275,7 @@ void sys_allocate_user_mem(uint32 virtual_address, uint32 size)
 }
 
 
-void * sys_hard_limit(){
+void *sys_get_hard_limit(){
 
 	return (void*)curenv->dalimit;
 }
@@ -586,7 +586,7 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 	switch(syscallno)
 	{
 	/*2023*/
-	//TODO: [PROJECT'23.MS1 - #4] [2] SYSTEM CALLS - Add suitable code here
+	//
 	//=====================================================================
 	case SYS_cputs:
 		sys_cputs((const char*)a1,a2,(uint8)a3);
@@ -664,7 +664,7 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 		return 0;
 		break;
 	case SYS_getHardLimit:
-	        return (uint32)sys_hard_limit();
+	        return (uint32)sys_get_hard_limit();
 	        break;
 	case SYS_disableINTR:
 		sys_disable_interrupt();
