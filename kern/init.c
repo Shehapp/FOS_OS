@@ -144,7 +144,7 @@ void print_welcome_message()
 	cprintf("\n\n\n");
 	cprintf("\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	cprintf("\t\t!!                                                             !!\n");
-	cprintf("\t\t!!                   !! SHEHAP says HELLO !!                     !!\n");
+	cprintf("\t\t!!                   !! SHEHAP and TAREK say HELLO !!                     !!\n");
 	cprintf("\t\t!!                                                             !!\n");
 	cprintf("\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	cprintf("\n\n\n\n");
