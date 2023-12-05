@@ -270,7 +270,6 @@ void * create_page_table(uint32 *ptr_directory, const uint32 virtual_address)
 	//	a.	clear all entries (as it may contain garbage data)
 	//	b.	clear the TLB cache (using "tlbflush()")
 
-	//change this "return" according to your answer
 
 #if USE_KHEAP
 	uint32 * ptr_page_table = kmalloc(PAGE_SIZE);

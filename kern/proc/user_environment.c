@@ -92,18 +92,15 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 	struct UserProgramInfo* ptr_user_program_info = get_user_program_info(user_program_name);
 	if(ptr_user_program_info == 0) return NULL;
 	ptr_program_start = ptr_user_program_info->ptr_start ;
-	//	if(ptr_user_program_info->environment != NULL)
-	//	{
-	//		cprintf("env_create: an old environment already exist for [%s]!! \nfreeing the old one by calling start_env_free....\n", ptr_user_program_info->environment->prog_name);
-	//		start_env_free(ptr_user_program_info->environment);
-	//
-	//		//return ptr_user_program_info;
-	//	}
+
+
 
 
 	//[2] allocate new environment, (from the free environment list)
 	//if there's no one, return NULL
 	// Hint: use "allocate_environment" function
+
+	// as allocate_frame() there is limited envs as frames
 	struct Env* e = NULL;
 	if(allocate_environment(&e) < 0)
 	{
@@ -117,6 +114,8 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 		strcpy(e->prog_name, ptr_user_program_info->name);
 	else
 		strncpy(e->prog_name, ptr_user_program_info->name, PROGNAMELEN-1);
+
+
 
 	//[3] allocate a frame for the page directory, Don't forget to set the references of the allocated frame.
 	//REMEMBER: "allocate_frame" should always return a free frame
@@ -795,18 +794,14 @@ void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 da
 	//Remember:
 	//	1) there's no initial allocations for the dynamic allocator of the user heap (=0)
 	//	2) call the initialize_dynamic_allocator(..) to complete the initialization
-//	panic("not implemented yet");imit+4 expected  \n",(first_block->vir_addf ));
+
 	 	e->dastart = daStart;
 	    e->seg_brk = daStart;
 	    e->dalimit = daLimit;
-	//brk=(void*)daStart;
-//	struct U_heap *first_block;
-//	cprintf("%x <----, ",daStart);
-//
+
 
 	initialize_dynamic_allocator(daStart,0);
 
-// momken ukoon malloc bwzetha
 
 }
 

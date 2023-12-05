@@ -489,7 +489,7 @@ void* sys_sbrk(int increment)
 {
 	//TODO: [PROJECT'23.MS2 - #08] [2] USER HEAP - Block Allocator - sys_sbrk() [Kernel Side]
 	//MS2: COMMENT THIS LINE BEFORE START CODING====
-	//return (void*)-1 ;
+
 	//====================================================
 
 	/*2023*/
@@ -511,9 +511,8 @@ void* sys_sbrk(int increment)
 	 * 		be that sys_sbrk returns (void*) -1 and that the segment break and the process heap are unaffected.
 	 * 		You might have to undo any operations you have done so far in this case.
 	 */
-	struct Env* env = curenv; //the current running Environment to adjust its break limit
+	struct Env* env = curenv;
 
-	//cprintf("__________________SBRK IN_________________\n");
 
 	if(increment==0){
 					return (void*)curenv->seg_brk;
@@ -522,12 +521,9 @@ void* sys_sbrk(int increment)
 		int move_size=ROUNDUP(increment,PAGE_SIZE);
 
 			void* new_brk=(void*)curenv->seg_brk+move_size;
-			//cprintf("%x <---- hard limit enviroment \n",curenv->dalimit);
 			if(new_brk> (void*)curenv->dalimit)
 			{
-				//cprintf("WOOOWoooWOOW \n ");
 				return (void*)-1;
-				//panic("------------------------>size too large");
 			}
 
 			if(increment>0)
@@ -541,16 +537,7 @@ void* sys_sbrk(int increment)
 
 
 				increment=increment*-1;
-	//
-	//			if(increment<=PAGE_SIZE){
-	//
-	//				brk = new_brk-increment;
-	//				return new_brk-increment; 
-	//
-	//			}
 
-
-				//int move_size=ROUNDUP(increment,PAGE_SIZE);
 				void* new_brk=(void*)curenv->seg_brk-increment;
 				for(void*i=(void*)curenv->seg_brk;i>=new_brk;i=i-PAGE_SIZE)
 				{
@@ -565,7 +552,6 @@ void* sys_sbrk(int increment)
 			return 0;
 
 	    //MS2: COMMENT THIS LINE BEFORE START CODING====
-	 //   panic("not implemented yet");
 
 
 }
