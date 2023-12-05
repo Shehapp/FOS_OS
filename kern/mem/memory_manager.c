@@ -270,6 +270,7 @@ void * create_page_table(uint32 *ptr_directory, const uint32 virtual_address)
 	//	a.	clear all entries (as it may contain garbage data)
 	//	b.	clear the TLB cache (using "tlbflush()")
 
+	//change this "return" according to your answer
 
 #if USE_KHEAP
 	uint32 * ptr_page_table = kmalloc(PAGE_SIZE);
@@ -418,7 +419,9 @@ struct FrameInfo * get_frame_info(uint32 *ptr_page_directory, uint32 virtual_add
 		uint32 index_page_table = PTX(virtual_address);
 		//cprintf(".gfi .2\n");
 		uint32 page_table_entry = (*ptr_page_table)[index_page_table];
-		if( page_table_entry != 0)
+		/*2023 el7:)*///Make sure it has a frame number other than 0 (not just a marked page from the page allocator)
+		//if( page_table_entry != 0)
+		if( (page_table_entry & ~0xFFF) != 0)
 		{
 			//cprintf(".gfi .3\n");
 			return to_frame_info( EXTRACT_ADDRESS ( page_table_entry ) );
@@ -451,15 +454,12 @@ void unmap_frame(uint32 *ptr_page_directory, uint32 virtual_address)
 	{
 		if (ptr_frame_info->isBuffered && !CHECK_IF_KERNEL_ADDRESS((uint32)virtual_address))
 			cprintf("WARNING: Freeing BUFFERED frame at va %x!!!\n", virtual_address) ;
-
 		decrement_references(ptr_frame_info);
-		ptr_frame_info->va=0;
 
 		/*********************************************************************************/
 		/*NEW'23 el7:)
 		 * TODO: [DONE] unmap_frame(): KEEP THE VALUES OF THE AVAILABLE BITS*/
 		uint32 pte_available_bits = ptr_page_table[PTX(virtual_address)] & PERM_AVAILABLE;
-		//cprintf("%x dah mfrood 23mllo freee<--- %x \n",ptr_page_table[PTX(virtual_address)],virtual_address);
 		ptr_page_table[PTX(virtual_address)] = pte_available_bits;
 		/*********************************************************************************/
 

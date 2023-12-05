@@ -324,6 +324,7 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 		{
 #if USE_KHEAP
 			wse = env_page_ws_list_create_element(e, (uint32) stackVa);
+			pp->element=wse;
 			LIST_INSERT_TAIL(&(e->page_WS_list), wse);
 			if (LIST_SIZE(&(e->page_WS_list)) == e->page_WS_max_size)
 			{
@@ -641,6 +642,7 @@ static int program_segment_alloc_map_copy_workingset(struct Env *e, struct Progr
 
 #if USE_KHEAP
 		struct WorkingSetElement* wse = env_page_ws_list_create_element(e, iVA);
+		p->element=wse;
 		wse->time_stamp = 0;
 		LIST_INSERT_TAIL(&(e->page_WS_list), wse);
 #else
@@ -648,6 +650,7 @@ static int program_segment_alloc_map_copy_workingset(struct Env *e, struct Progr
 		e->ptr_pageWorkingSet[e->page_last_WS_index].virtual_address = iVA;
 		e->ptr_pageWorkingSet[e->page_last_WS_index].empty = 0;
 		e->ptr_pageWorkingSet[e->page_last_WS_index].time_stamp = 0;
+		p->element=e->ptr_pageWorkingSet[e->page_last_WS_index];
 #endif
 		//2020
 		if (isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX))

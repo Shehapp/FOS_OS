@@ -196,7 +196,6 @@ void* kmalloc(unsigned int size) {
 
        if( isKHeapPlacementStrategyFIRSTFIT()){
        void* ptra = alloc_block_FF(size);
-//       cprintf("\n k=>%x\n",ptra);
 
        return ptra;
        }

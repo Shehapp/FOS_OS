@@ -378,13 +378,15 @@ void fault_handler(struct Trapframe *tf)
 			/*============================================================================================*/
 			//TODO: [PROJECT'23.MS2 - #13] [3] PAGE FAULT HANDLER - Check for invalid pointers
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
-
+	    	cprintf("\n a7a neek1 \n");
 
 			uint32 fa = fault_va;
+			cprintf("\n fault==> %x <==\n",fa);
 	        //fault_va=ROUNDDOWN(fault_va,PAGE_SIZE);
 			uint32 page_permissions = pt_get_page_permissions(curenv->env_page_directory ,fault_va);
 			//cprintf("%d <----- page_permisioin mark\n",page_permissions &PERM_MARK);
 			 if((fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX )){
+			    	cprintf("\n a7a neek2 \n");
 
 				if(fault_va <=curenv->dalimit) {
 
@@ -396,20 +398,16 @@ void fault_handler(struct Trapframe *tf)
 			}
 
 			 else if( !(fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX) && (page_permissions & PERM_PRESENT) ){
+			    	cprintf("\n a7a neek3 \n");
 
 				sched_kill_env(curenv->env_id);
 			}
 			else if((page_permissions & PERM_PRESENT) && !(page_permissions &  PERM_WRITEABLE) ){
-				//cprintf("______1 - kill_________\n");
+		    	cprintf("\n a7a neek4 \n");
 				sched_kill_env(curenv->env_id);
 			}
-
 			else if (page_permissions !=0 && !(page_permissions & PERM_MARK)){
-				//cprintf("______2 - kill_________\n");
-							sched_kill_env(curenv->env_id);
-			}else if (fa == 0){
-				//cprintf("______5 - kill_________\n");
-				sched_kill_env(curenv->env_id);
+//							sched_kill_env(curenv->env_id);
 			}
 
 			/*============================================================================================*/

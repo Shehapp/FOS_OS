@@ -157,7 +157,6 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 
 			uint32 pp =pt_get_page_permissions(e->env_page_directory,(int)i);
 			if(pp & PERM_PRESENT){
-
 				env_page_ws_invalidate(e,(int)i);
 				unmap_frame(e->env_page_directory,(int) i);
 			}
