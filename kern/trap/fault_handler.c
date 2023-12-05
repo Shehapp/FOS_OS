@@ -110,14 +110,10 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 
         	}
         	else{
-        		//cprintf("HMMM\n");
         		sched_kill_env(curenv->env_id);
         	}
         }
         else {
-
-        	 //cprintf("_______________HMMM____________\n");
-        	// cprintf("_______________HMMM____________\n");
 
             map_frame(curenv->env_page_directory, pll,fault_va,  PERM_USER | PERM_WRITEABLE);
             pll->va=fault_va;
@@ -128,8 +124,6 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
         uint32 *ptr_t;
         struct FrameInfo * fr =  get_frame_info(curenv->env_page_directory ,fault_va, &ptr_t);
         fr->element= work;
-
-       // env_page_ws_print(curenv);
 
 
         if(LIST_SIZE(&curenv->page_WS_list) == (curenv->page_WS_max_size)){
@@ -156,7 +150,35 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 		{
 			//TODO: [PROJECT'23.MS3 - #2] [1] PAGE FAULT HANDLER - LRU Replacement
 			// Write your code here, remove the panic and write your code
-			//panic("page_fault_handler() LRU Replacement is not implemented yet...!!");
+
+			if(curenv->page_WS_max_size == curenv->ActiveList.size +curenv->SecondList.size){
+				// replacement
+
+
+				// case#1: search in second list
+				struct WorkingSetElement* temp = NULL;
+				 uint32 *ptr_t;
+				 struct FrameInfo * fr =  get_frame_info(curenv->env_page_directory ,fault_va, &ptr_t);
+				 if(fr!=NULL){
+					 // set present pet
+					pt_set_page_permissions(curenv->env_page_directory,fault_va,PERM_PRESENT ,0);
+					LIST_REMOVE(&curenv->SecondList,fr->element);
+					temp = LIST_LAST(&curenv->ActiveList);
+					LIST_REMOVE(&curenv->ActiveList,temp);
+					pt_set_page_permissions(curenv->env_page_directory,temp->virtual_address,0 ,PERM_PRESENT);
+					LIST_INSERT_HEAD(&curenv->SecondList,temp);
+					LIST_INSERT_HEAD(&curenv->ActiveList,fr->element);
+				 }else{
+				  temp = LIST_LAST(&curenv->SecondList);
+				  pf_add_env_page(&curenv,temp->virtual_address)
+				  unmap_frame(curenv->env_page_directory,(int) temp->virtual_address);
+				  env_page_ws_invalidate(e,(int)i);
+
+				 }
+
+			}else{
+				//place
+			}
 
 			//TODO: [PROJECT'23.MS3 - BONUS] [1] PAGE FAULT HANDLER - O(1) implementation of LRU replacement
 		}
