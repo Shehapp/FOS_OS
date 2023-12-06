@@ -22,6 +22,11 @@ inline struct WorkingSetElement* env_page_ws_list_create_element(struct Env* e, 
 	struct WorkingSetElement *work= kmalloc(sizeof(struct WorkingSetElement));
 	work->virtual_address=virtual_address;
 
+	// add ws to its frame
+	uint32 *ptr_t;
+	struct FrameInfo *fr = get_frame_info(e->env_page_directory, virtual_address, &ptr_t);
+	fr->element = work;
+
 	return work;
 }
 inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
