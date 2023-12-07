@@ -93,10 +93,12 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 		uint32 *ptr_t;
 		//cprintf("%x vir--> nned to unap from working set\n",virtual_address);
 		struct FrameInfo * fr =  get_frame_info(e->env_page_directory ,virtual_address , &ptr_t);
+		if(fr!=NULL){
 		wse =fr->element;
 		//cprintf("%x vir--> nned to unap from working fr->element\n",fr->element);
 		LIST_REMOVE(&(e->page_WS_list), wse);
 		kfree(wse);
+		}
 
 	}
 }

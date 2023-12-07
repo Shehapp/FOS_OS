@@ -244,7 +244,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
 
 
                     // erase ws, unmap frame, set mark 0
-                    LIST_REMOVE(&curenv->SecondList, temp);
+//                    LIST_REMOVE(&curenv->SecondList, temp);
                     env_page_ws_invalidate(curenv, (int) temp->virtual_address);
                     pt_set_page_permissions(curenv->env_page_directory, (int) temp->virtual_address, 0, PERM_MARK);
     				unmap_frame(curenv->env_page_directory, temp->virtual_address);

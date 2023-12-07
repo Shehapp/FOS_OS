@@ -53,7 +53,7 @@ struct Command commands[] =
 		{"nomodbuff", "disable modified buffer", command_disable_modified_buffer, 0},
 		{"modbuff", "enable modified buffer", command_enable_modified_buffer, 0},
 		{"modbufflength?", "get modified buffer length", command_get_modified_buffer_length, 0},
-
+		{"frames","get number of frames",command_fr,0},
 		//*****************************//
 		/* COMMANDS WITH ONE ARGUMENT */
 		//*****************************//
@@ -856,4 +856,16 @@ int command_get_modified_buffer_length(int number_of_arguments, char **arguments
 int command_tst(int number_of_arguments, char **arguments)
 {
 	return tst_handler(number_of_arguments, arguments);
+}
+int command_fr(int number_of_arguments, char **arguments)
+{
+	uint32 w=0;
+	        	struct freeFramesCounters counters = calculate_available_frames();
+	        		//	cprintf("Free Frames = %d : Buffered = %d, Not Buffered = %d\n", counters.freeBuffered + counters.freeNotBuffered, counters.freeBuffered ,counters.freeNotBuffered);
+	        		w+= counters.freeBuffered + counters.freeNotBuffered;
+	        		 counters = calculate_available_frames();
+	        			//	cprintf("================ Modified Frames = %d\n", counters.modified) ;
+	        			w+= counters.modified;
+	        	cprintf("\n size= %d\n",w);
+	return 0;
 }
