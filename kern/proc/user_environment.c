@@ -442,14 +442,12 @@ void env_run(struct Env *e)
 
 
 void env_free(struct Env *e) {
-//	cprintf("\nmanskjfdnkjd\n");
 
     //TODO: [PROJECT'23.MS3 - BONUS] EXIT ENV: env_free
     {
 
         // [1] remove pages and tables in one bullet
     	for(uint32 start=0;start<USER_TOP;start+=PAGE_SIZE){
-//    		cprintf("\n mansour0\n");
 
     		// delete page and its ws
             env_page_ws_invalidate(e,start);
@@ -466,9 +464,7 @@ void env_free(struct Env *e) {
     				free_frame(cur_frame);
     			}
     		}
-//    		cprintf("\n mansour1\n");
     	}
-//		cprintf("\n mansour2\n");
 
     	// [2] remove page_dir
     	struct FrameInfo* cur_frame = to_frame_info(e->env_cr3);
