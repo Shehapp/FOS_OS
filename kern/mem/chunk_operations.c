@@ -159,8 +159,21 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 			if(pp & PERM_PRESENT){
 				env_page_ws_invalidate(e,(int)i);
 				unmap_frame(e->env_page_directory,(int) i);
+				if(!(isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX))){
+				     if(e->page_last_WS_element != LIST_FIRST(&e->page_WS_list)){
+			             struct WorkingSetElement* same_ptr = LIST_FIRST(&e->page_WS_list) ;
+			             LIST_REMOVE(&e->page_WS_list,same_ptr);
+					     LIST_INSERT_TAIL(&e->page_WS_list , same_ptr);
+
+				     }
+
+				}
+
 			}
 		}
+
+
+
 	if(ptr_t !=NULL){
 		pt_set_page_permissions(e->env_page_directory,(int) i,PERM_WRITEABLE,PERM_MARK);
 	}
