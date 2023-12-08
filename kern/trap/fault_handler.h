@@ -70,4 +70,8 @@ void dyn_alloc_local_scope_method(struct Env * curenv, uint32 fault_va);
 void page_fault_handler(struct Env * curenv, uint32 fault_va);
 void table_fault_handler(struct Env * curenv, uint32 fault_va);
 
+//2024
+void fetch_frame_from_mem(struct Env * curenv, uint32 fault_va);
+int rm_ram_add_disk(struct Env * curenv);
+int from_sec_to_act(struct Env *e, uint32 fault_va);
 #endif /* KERN_FAULT_HANDLER_H_ */
