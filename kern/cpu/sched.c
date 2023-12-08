@@ -162,18 +162,25 @@ void sched_init_MLFQ(uint8 numOfLevels, uint8 *quantumOfEachLevel)
 void sched_init_BSD(uint8 numOfLevels, uint8 quantum)
 {
 #if USE_KHEAP
-	//TODO: [PROJECT'23.MS3 - #4] [2] BSD SCHEDULER - sched_init_BSD
-	//Your code is here
-	//Comment the following line
-	panic("Not implemented yet");
+    //TODO: [PROJECT'23.MS3 - #4] [2] BSD SCHEDULER - sched_init_BSD
+    //Your code is here
+    //Comment the following line
+    kclock_set_quantum(quantum);
+    quantums=&quantum;
+    for(int i=0;i<numOfLevels;i++){
 
-	//=========================================
-	//DON'T CHANGE THESE LINES=================
-	scheduler_status = SCH_STOPPED;
-	scheduler_method = SCH_BSD;
-	//=========================================
-	//=========================================
+        init_queue(&env_ready_queues[i]);
+    }
+    num_of_ready_queues=numOfLevels;
+
+    //=========================================
+    //DON'T CHANGE THESE LINES=================
+    scheduler_status = SCH_STOPPED;
+    scheduler_method = SCH_BSD;
+    //=========================================
+    //=========================================
 #endif
+
 }
 
 
@@ -192,9 +199,28 @@ struct Env* fos_scheduler_MLFQ()
 struct Env* fos_scheduler_BSD()
 {
 	//TODO: [PROJECT'23.MS3 - #5] [2] BSD SCHEDULER - fos_scheduler_BSD
-	//Your code is here
-	//Comment the following line
-	panic("Not implemented yet");
+	    //Your code is here                                                 enqueue
+	    //Comment the following line
+	struct Env* next_env = NULL;
+	struct Env* current_env = NULL;
+	for(int i=0;i<num_of_ready_queues;i++)
+	    {
+
+	        LIST_FOREACH(current_env,&env_ready_queues[i])
+	        {
+
+	         if(current_env==NULL)
+	            {
+	                break;
+
+	            }
+	            next_env=current_env;
+	            return next_env;
+
+	        }
+
+	  }
+
 	return NULL;
 }
 
@@ -287,4 +313,3 @@ void update_WS_time_stamps()
 		}
 	}
 }
-
