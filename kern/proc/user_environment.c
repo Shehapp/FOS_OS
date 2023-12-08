@@ -447,22 +447,20 @@ void env_free(struct Env *e) {
     {
 
         //  remove pages and tables in one bullet
-	int jkdfnkj=0;
-    	for(uint32 start=0;start<USER_TOP;start+=PAGE_SIZE){
+    	for(uint32 start=0, cnt=0;start<USER_TOP;start+=PAGE_SIZE,cnt++){
 
     		// delete page and its ws
     		uint32 *ptr_t;
-    		// issue must set presnt
     		struct FrameInfo *fr = get_frame_info(e->env_page_directory, start, &ptr_t);
     		if (fr != 0) {
-    			// idon't know why without those 2 line it works 
+    			// i don't know why without those 2 line it works
     			LIST_REMOVE(&(e->page_WS_list), fr->element);
     			kfree(fr->element);
-    			
+
         		unmap_frame((void *)e->env_page_directory,start);
     		}
 
-    		if(jkdfnkj%1024==1023){
+    		if(cnt%1024==1023){
     			// every 4MB delete table page if exist
 
     			if((e->env_page_directory[PDX(start)]>>12)>0){
@@ -471,7 +469,6 @@ void env_free(struct Env *e) {
     			     free_frame(cur_frame);
     			}
     		}
-    		jkdfnkj++;
     	}
     	//  remove page_dir
     	struct FrameInfo* cur_frame = to_frame_info(e->env_cr3);
@@ -481,7 +478,7 @@ void env_free(struct Env *e) {
     }
 
 
-	
+
     //  remove this program from the page file
     /*(ALREADY DONE for you)*/
     pf_free_env(e); /*(ALREADY DONE for you)*/ // (removes all of the program pages from the page file)
