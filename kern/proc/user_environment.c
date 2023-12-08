@@ -446,43 +446,48 @@ void env_free(struct Env *e) {
     //TODO: [PROJECT'23.MS3 - BONUS] EXIT ENV: env_free
     {
 
-        // [1] remove pages and tables in one bullet
+        //  remove pages and tables in one bullet
+	int jkdfnkj=0;
     	for(uint32 start=0;start<USER_TOP;start+=PAGE_SIZE){
 
     		// delete page and its ws
-            env_page_ws_invalidate(e,start);
-    		unmap_frame((void *)e->env_page_directory,start);
+    		uint32 *ptr_t;
+    		// issue must set presnt
+    		struct FrameInfo *fr = get_frame_info(e->env_page_directory, start, &ptr_t);
+    		if (fr != 0) {
+    			// idon't know why without those 2 line it works 
+    			LIST_REMOVE(&(e->page_WS_list), fr->element);
+    			kfree(fr->element);
+    			
+        		unmap_frame((void *)e->env_page_directory,start);
+    		}
 
-    		if(start%1024==1023){
+    		if(jkdfnkj%1024==1023){
     			// every 4MB delete table page if exist
-                uint32 ptr;
-    			get_page_table((void *)e->env_page_directory,start,(void *)ptr);
-    			if(ptr!=0){
-    				ptr-=KERNEL_BASE;
-    				struct FrameInfo* cur_frame = to_frame_info(ptr);
-    				cur_frame->references = 0;
-    				free_frame(cur_frame);
+
+    			if((e->env_page_directory[PDX(start)]>>12)>0){
+    			     struct FrameInfo* cur_frame = to_frame_info((e->env_page_directory[PDX(start)]>>12)<<12);
+    			     cur_frame->references = 0;
+    			     free_frame(cur_frame);
     			}
     		}
+    		jkdfnkj++;
     	}
-
-    	// [2] remove page_dir
+    	//  remove page_dir
     	struct FrameInfo* cur_frame = to_frame_info(e->env_cr3);
     	cur_frame->references = 0;
     	free_frame(cur_frame);
 
-
-
-
-
     }
 
-    // [9] remove this program from the page file
+
+	
+    //  remove this program from the page file
     /*(ALREADY DONE for you)*/
     pf_free_env(e); /*(ALREADY DONE for you)*/ // (removes all of the program pages from the page file)
     /*========================*/
 
-    // [10] free the environment (return it back to the free environment list)
+    //  free the environment (return it back to the free environment list)
     /*(ALREADY DONE for you)*/
     free_environment(
             e); /*(ALREADY DONE for you)*/ // (frees the environment (returns it back to the free environment list))
