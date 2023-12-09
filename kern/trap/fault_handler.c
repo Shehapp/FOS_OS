@@ -156,9 +156,44 @@ int rm_ram_wsList_add_disk(struct Env *e){
 	//TODO: remove frame from ws list
 	// return 1 if you do it else return 0
 
+	if(LIST_SIZE(&e->page_WS_list) != 0){
 
+	      if(e->page_last_WS_element !=NULL){
 
-	return 0;
+		uint32 page_permissions = pt_get_page_permissions(e->env_page_directory,e->page_last_WS_element->virtual_address);
+		if (page_permissions & PERM_MODIFIED)
+		  {
+		      uint32 *ptr_to_remove;
+		      struct FrameInfo * frame_to_remove = get_frame_info(e->env_page_directory, e->page_last_WS_element->virtual_address,&ptr_to_remove);
+		     int ret = pf_update_env_page(e,e->page_last_WS_element->virtual_address, frame_to_remove);
+	          }
+		struct WorkingSetElement* same_ptr = e->page_last_WS_element ;
+		e->page_last_WS_element = LIST_NEXT(same_ptr);
+		env_page_ws_invalidate(e,same_ptr->virtual_address);
+		unmap_frame(e->env_page_directory,same_ptr->virtual_address);
+
+		      
+		   return 1 ;
+		}
+		else{
+			struct WorkingSetElement* lastws = LIST_LAST(&e->page_WS_list);
+		        uint32 page_permissions = pt_get_page_permissions(e->env_page_directory,lastws->virtual_address);
+		        if (page_permissions & PERM_MODIFIED)
+		         {
+			        uint32 *ptr_to_remove;
+	        	        struct FrameInfo * frame_to_remove = get_frame_info(e->env_page_directory,lastws->virtual_address, &ptr_to_remove);
+		                int ret = pf_update_env_page(e,lastws->virtual_address,frame_to_remove);
+		        }
+						env_page_ws_invalidate(e,lastws->virtual_address);
+						unmap_frame(e->env_page_directory,lastws->virtual_address);
+				return 1 ;
+		    }
+
+		}
+		else{
+			return 0 ;
+		  }
+
 }
 
 int from_sec_to_act(struct Env *e, uint32 fault_va){
