@@ -123,7 +123,7 @@ void fetch_frame_from_mem(struct Env *e, uint32 fault_va){
     }
 }
 
-int rm_ram_add_disk(struct Env *e){
+int rm_ram_secList_add_disk(struct Env *e){
 
     struct WorkingSetElement *temp = LIST_LAST(&e->SecondList);;
 
@@ -152,6 +152,15 @@ int rm_ram_add_disk(struct Env *e){
     return 1;
 }
 
+int rm_ram_wsList_add_disk(struct Env *e){
+	//TODO: remove frame from ws list
+	// return 1 if you do it else return 0
+
+
+
+	return 0;
+}
+
 int from_sec_to_act(struct Env *e, uint32 fault_va){
 
     struct WorkingSetElement *temp = NULL;
@@ -174,6 +183,7 @@ int from_sec_to_act(struct Env *e, uint32 fault_va){
     return 0;
 
 }
+
 
 
 void page_fault_handler(struct Env *curenv, uint32 fault_va) {
@@ -291,7 +301,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
                 if (!from_sec_to_act(curenv,  fault_va) ){
 
                 	 // remove frame from ram and write it in disk
-                	rm_ram_add_disk(curenv);
+                	rm_ram_secList_add_disk(curenv);
 
                 	 // add last ws in active to head of sec
                     temp = LIST_LAST(&curenv->ActiveList);
