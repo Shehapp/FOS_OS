@@ -375,6 +375,8 @@ void fault_handler(struct Trapframe *tf)
 	{
 		if (userTrap)
 		{
+			 last_fault_va = 0;
+			 num_repeated_fault  = 0;
 			/*============================================================================================*/
 			//TODO: [PROJECT'23.MS2 - #13] [3] PAGE FAULT HANDLER - Check for invalid pointers
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
