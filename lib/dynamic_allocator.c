@@ -114,9 +114,13 @@ void initialize_dynamic_allocator(uint32 daStart, uint32 initSizeOfAllocatedSpac
 	//declare the block
 	struct BlockMetaData *first_block ;
 	//LIST_INIT(&first_block);
+	//cprintf("dastart -> %x \n",daStart);
 	first_block=(struct BlockMetaData *)daStart;
+
+
 	first_block->is_free=1;
 	first_block->size=initSizeOfAllocatedSpace;
+	//cprintf("Done\n");
 	declare_heap(first_block);
 
 
@@ -201,17 +205,21 @@ void *alloc_block_FF(uint32 size)
 
 		if(!is_initialized){
 
+
 		//cprintf("@YWA\n");
 		uint32 required_size = size + sizeOfMetaData();
 
 		//cprintf("%x  %d<----- our brk",sbrk(0),sbrk(0));
 		uint32 da_start = (uint32)sbrk(required_size);
 
+		//cprintf("1\n");
 		uint32 da_break = (uint32)sbrk(0);
 
+		//cprintf("2\n");
 		//cprintf("%x---- %x---- %d \n",da_start,da_break,da_break-da_start);
 		initialize_dynamic_allocator(da_start,da_break-da_start);
 
+		//cprintf("done\n");
 
 	}
 

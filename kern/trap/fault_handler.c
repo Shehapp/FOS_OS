@@ -159,7 +159,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
         struct FrameInfo *fr = get_frame_info(curenv->env_page_directory, fault_va, &ptr_t);
         fr->element = work;
 
-
+        // env_page_ws_print(curenv);
         if (LIST_SIZE(&curenv->page_WS_list) == (curenv->page_WS_max_size) ) {
         	if( curenv->page_last_WS_element == NULL || curenv->page_last_WS_element == LIST_LAST(&curenv->page_WS_list) )
         		curenv->page_last_WS_element = LIST_FIRST(&curenv->page_WS_list);
@@ -237,7 +237,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
         	if (wsSize < (curenv->page_WS_max_size))
         	{
 
-            	//cprintf(" _________kosom shehap lw da5l __________ \n");
+
         	    LIST_INSERT_TAIL(&curenv->page_WS_list, work);
 
         	    if (LIST_SIZE(&curenv->page_WS_list)

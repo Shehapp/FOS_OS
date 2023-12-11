@@ -645,6 +645,10 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 	case SYS_sbrk:
 		return (uint32)sys_sbrk(a1);
 		break;
+	case SYS_getcurenv_nice:
+		env_set_nice((struct Env*) a1 , a2);
+		return 0;
+		break;
 	case SYS_freeUmem:
 		if(a1 == 0 || a1 >= USER_LIMIT || a1 + a2 > USER_LIMIT){
 			sched_kill_env(curenv->env_id);

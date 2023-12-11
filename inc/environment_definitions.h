@@ -7,6 +7,7 @@
 #include <inc/queue.h>
 #include <inc/trap.h>
 #include <inc/memlayout.h>
+#include <inc/fixed_point.h>
 
 // An environment ID 'envid_t' has three parts:
 //
@@ -96,7 +97,10 @@ struct Env {
 	int32 env_id;					// Unique environment identifier
 	int32 env_parent_id;			// env_id of this env's parent
 	unsigned env_status;			// Status of the environment
-	int priority;					// Current priority
+	int priority;
+	int nice_value;
+	fixed_point_t recent_cpu100;
+		// Current priority
 	char prog_name[PROGNAMELEN];	// Program name (to print it via USER.cprintf in multitasking)
 	//struct UHeap_list UHlist;
 

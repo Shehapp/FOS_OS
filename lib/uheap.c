@@ -72,8 +72,10 @@ void* malloc(uint32 size)
 
 	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
 	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
-	            void* ret = alloc_block_FF(size);
 
+	        	void* ret = alloc_block_FF(size);
+
+	    		//cprintf("DONE\n");
 	    		//cprintf("-----------block_alooccc -----\n");
 	            return ret;
 	        }

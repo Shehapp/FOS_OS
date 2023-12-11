@@ -119,6 +119,7 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
 	/*=============================================================================*/
 	//TODO: [PROJECT'23.MS2 - #10] [2] USER HEAP - allocate_user_mem() [Kernel Side]
+
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
 
 	for(int i=0;i<pages;i++){
@@ -134,7 +135,6 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_WRITEABLE ,PERM_PRESENT);
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_MARK ,PERM_PRESENT);
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_USER,PERM_PRESENT);
-
 
 		//0x00000FFF
 		// set bit marked
@@ -167,10 +167,6 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 			uint32 pp =pt_get_page_permissions(e->env_page_directory,(int)i);
 			if(pp & PERM_PRESENT){
 
-				// 1 3 4 5 6
-				//cprintf("before freeing %x \n",i);
-				//env_page_ws_print(e);
-				//cprintf("\n");
 				env_page_ws_invalidate(e,(int)i);
 				unmap_frame(e->env_page_directory,(int) i);
 
@@ -184,12 +180,8 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 								//LIST_REMOVE(&e->page_WS_list,LIST_FIRST(&e->page_WS_list));
 
 				}
-				// each time i free i got the first one and put it in the end
 
-				//e->page_last_WS_element=NULL;
-				// if lw pointer bu5awr 3la 2a5r uroo7 el2wl
-					// p
-					// 1   3 4 5
+
 			}
 		}
 	if(ptr_t !=NULL){
