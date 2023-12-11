@@ -859,13 +859,7 @@ int command_tst(int number_of_arguments, char **arguments)
 }
 int command_fr(int number_of_arguments, char **arguments)
 {
-	uint32 w=0;
-	        	struct freeFramesCounters counters = calculate_available_frames();
-	        		//	cprintf("Free Frames = %d : Buffered = %d, Not Buffered = %d\n", counters.freeBuffered + counters.freeNotBuffered, counters.freeBuffered ,counters.freeNotBuffered);
-	        		w+= counters.freeBuffered + counters.freeNotBuffered;
-	        		 counters = calculate_available_frames();
-	        			//	cprintf("================ Modified Frames = %d\n", counters.modified) ;
-	        			w+= counters.modified;
-	        	cprintf("\n size= %d\n",w);
+
+	        	cprintf("\n no.free_frames= %d\n",free_frame_list.size);
 	return 0;
 }
