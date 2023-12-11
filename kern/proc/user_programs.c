@@ -20,6 +20,7 @@ struct UserProgramInfo userPrograms[] = {
 		{ "fos_game", "Created by FOS team, fos@nowhere.com", PTR_START_OF(game)},
 		{ "fos_static_data_section", "Created by FOS team, fos@nowhere.com", PTR_START_OF(fos_static_data_section)},
 		{ "fos_data_on_stack", "Created by FOS team, fos@nowhere.com", PTR_START_OF(fos_data_on_stack)},
+		{ "shehap", "allocate huge data", PTR_START_OF(fos_shehap)},
 
 		/*TESTING 2023*/
 		//[1] READY MADE TESTS
@@ -35,7 +36,7 @@ struct UserProgramInfo userPrograms[] = {
 		{ "tf1_slave1", "tests free (1) slave1: try accessing values in freed spaces", PTR_START_OF(tst_free_1_slave1)},
 		{ "tf1_slave2", "tests free (1) slave2: try accessing values in freed spaces that is not accessed before", PTR_START_OF(tst_free_1_slave2)},
 		{ "tf2", "tests free (2): BLOCK ALLOCATOR", PTR_START_OF(tst_free_2)},
-		
+
 		{ "tff1", "tests first fit (1): PAGE ALLOCATOR", PTR_START_OF(tst_first_fit_1)},
 		{ "tff2", "tests first fit (2): BLOCK ALLOCATOR", PTR_START_OF(tst_first_fit_2)},
 		{ "tpp", "Tests the Page placement", PTR_START_OF(tst_placement)},
@@ -44,7 +45,7 @@ struct UserProgramInfo userPrograms[] = {
 		{ "tia_slave2", "tia: write on read only user page", PTR_START_OF(tst_invalid_access_slave2)},
 		{ "tia_slave3", "tia: access an unmarked (non-reserved) user heap page", PTR_START_OF(tst_invalid_access_slave3)},
 		{ "tia_slave4", "tia: access a non-exist page in page file, stack and heap", PTR_START_OF(tst_invalid_access_slave4)},
-		
+
 		{ "tpr1", "Tests page replacement (allocation of Memory and PageFile)", PTR_START_OF(tst_page_replacement_alloc)},
 		{ "tpr2", "tests page replacement (handling new stack and modified pages)", PTR_START_OF(tst_page_replacement_stack)},
 		{ "tfifo1", "Tests page replacement (FIFO algorithm 1)", PTR_START_OF(tst_page_replacement_FIFO_1)},

@@ -119,7 +119,6 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
 	/*=============================================================================*/
 	//TODO: [PROJECT'23.MS2 - #10] [2] USER HEAP - allocate_user_mem() [Kernel Side]
-
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
 
 	for(int i=0;i<pages;i++){
@@ -136,14 +135,9 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_MARK ,PERM_PRESENT);
 		pt_set_page_permissions(e->env_page_directory,virtual_address,PERM_USER,PERM_PRESENT);
 
-		//0x00000FFF
-		// set bit marked
-		//0x00000FFF
 		virtual_address+=PAGE_SIZE;
 	}
 
-	// Write your code here, remove the panic and write your code
-	//panic("allocate_user_mem() is not implemented yet...!!");
 }
 
 //=====================================
@@ -153,37 +147,33 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
 	/*==========================================================================*/
 	//TODO: [PROJECT'23.MS2 - #12] [2] USER HEAP - free_user_mem() [Kernel Side]
-	//cprintf("______HERE WE GO AGAIN________");
-	// Write your code here, remove the panic and write your code
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
-	//cprintf("pages -> %d\n",pages);
+
 		for(void* i=(void*)virtual_address;i< ((void*)size+virtual_address);i+=PAGE_SIZE){
-		//cprintf("HI --%x \n",i);
+
 			uint32 *ptr_t ;
 		get_page_table(e->env_page_directory,(int)i,&ptr_t);
 		if(ptr_t !=NULL){
 
-//			pt_set_page_permissions(e->env_page_directory,(int)i,PERM_WRITEABLE ,PERM_MARK);
 			uint32 pp =pt_get_page_permissions(e->env_page_directory,(int)i);
 			if(pp & PERM_PRESENT){
-
 				env_page_ws_invalidate(e,(int)i);
 				unmap_frame(e->env_page_directory,(int) i);
+				if(!(isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX))){
+				     if(e->page_last_WS_element != LIST_FIRST(&e->page_WS_list)){
+			             struct WorkingSetElement* same_ptr = LIST_FIRST(&e->page_WS_list) ;
+			             LIST_REMOVE(&e->page_WS_list,same_ptr);
+					     LIST_INSERT_TAIL(&e->page_WS_list , same_ptr);
 
-				if(e->page_last_WS_element != LIST_FIRST(&e->page_WS_list)){
-
-
-			        struct WorkingSetElement* same_ptr = LIST_FIRST(&e->page_WS_list) ;
-			        LIST_REMOVE(&e->page_WS_list,same_ptr);
-			        //LIST_HEAD(&e->page_WS_list,LIST_NEXT(&e->page_WS_list,same_ptr));
-					LIST_INSERT_TAIL(&e->page_WS_list , same_ptr);
-								//LIST_REMOVE(&e->page_WS_list,LIST_FIRST(&e->page_WS_list));
+				     }
 
 				}
 
-
 			}
 		}
+
+
+
 	if(ptr_t !=NULL){
 		pt_set_page_permissions(e->env_page_directory,(int) i,PERM_WRITEABLE,PERM_MARK);
 	}
@@ -191,13 +181,6 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 
 
 		}
-
-
-
-
-
-	//panic("free_user_mem() is not implemented yet...!!");
-
 	//TODO: [PROJECT'23.MS2 - BONUS#2] [2] USER HEAP - free_user_mem() IN O(1): removing page from WS List instead of searching the entire list
 
 }

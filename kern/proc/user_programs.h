@@ -86,5 +86,7 @@ DECLARE_START_OF(mergesort_leakage);
 DECLARE_START_OF(mergesort_noleakage);
 DECLARE_START_OF(quicksort_noleakage);
 
+//2023
+DECLARE_START_OF(fos_shehap)
 
 #endif /* KERN_USER_PROGRAMS_H_ */

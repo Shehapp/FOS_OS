@@ -92,18 +92,15 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 	struct UserProgramInfo* ptr_user_program_info = get_user_program_info(user_program_name);
 	if(ptr_user_program_info == 0) return NULL;
 	ptr_program_start = ptr_user_program_info->ptr_start ;
-	//	if(ptr_user_program_info->environment != NULL)
-	//	{
-	//		cprintf("env_create: an old environment already exist for [%s]!! \nfreeing the old one by calling start_env_free....\n", ptr_user_program_info->environment->prog_name);
-	//		start_env_free(ptr_user_program_info->environment);
-	//
-	//		//return ptr_user_program_info;
-	//	}
+
+
 
 
 	//[2] allocate new environment, (from the free environment list)
 	//if there's no one, return NULL
 	// Hint: use "allocate_environment" function
+
+	// as allocate_frame() there is limited envs as frames
 	struct Env* e = NULL;
 	if(allocate_environment(&e) < 0)
 	{
@@ -117,6 +114,8 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 		strcpy(e->prog_name, ptr_user_program_info->name);
 	else
 		strncpy(e->prog_name, ptr_user_program_info->name, PROGNAMELEN-1);
+
+
 
 	//[3] allocate a frame for the page directory, Don't forget to set the references of the allocated frame.
 	//REMEMBER: "allocate_frame" should always return a free frame
@@ -325,7 +324,6 @@ struct Env* env_create(char* user_program_name, unsigned int page_WS_size, unsig
 		{
 #if USE_KHEAP
 			wse = env_page_ws_list_create_element(e, (uint32) stackVa);
-			pp->element = wse;
 			LIST_INSERT_TAIL(&(e->page_WS_list), wse);
 			if (LIST_SIZE(&(e->page_WS_list)) == e->page_WS_max_size)
 			{
@@ -441,33 +439,55 @@ void env_run(struct Env *e)
 //===============================
 // Frees environment "e" and all memory it uses.
 //
-void env_free(struct Env *e)
-{
-	/*REMOVE THIS LINE BEFORE START CODING*/
-	return;
-	/**************************************/
-
-	//TODO: [PROJECT'23.MS3 - BONUS] EXIT ENV: env_free
-	// your code is here, remove the panic and write your code
-	{
-		panic("env_free() is not implemented yet...!!");
 
 
+void env_free(struct Env *e) {
+
+    //TODO: [PROJECT'23.MS3 - BONUS] EXIT ENV: env_free
+    {
+
+        //  remove pages and tables in one bullet
+    	for(uint32 start=0, cnt=0;start<USER_TOP;start+=PAGE_SIZE,cnt++){
+
+    		// delete page and its ws
+    		uint32 *ptr_t;
+    		struct FrameInfo *fr = get_frame_info(e->env_page_directory, start, &ptr_t);
+    		if (fr != 0) {
+
+    			env_page_ws_invalidate(e,start);
+
+        		unmap_frame((void *)e->env_page_directory,start);
+    		}
+
+    		if(cnt%1024==1023){
+    			// every 4MB delete table page if exist
+
+    			if((e->env_page_directory[PDX(start)]>>12)>0){
+    			     struct FrameInfo* cur_frame = to_frame_info((e->env_page_directory[PDX(start)]>>12)<<12);
+    			     cur_frame->references = 0;
+    			     free_frame(cur_frame);
+    			}
+    		}
+    	}
+    	//  remove page_dir
+    	struct FrameInfo* cur_frame = to_frame_info(e->env_cr3);
+    	cur_frame->references = 0;
+    	free_frame(cur_frame);
+
+    }
 
 
 
+    //  remove this program from the page file
+    /*(ALREADY DONE for you)*/
+    pf_free_env(e); /*(ALREADY DONE for you)*/ // (removes all of the program pages from the page file)
+    /*========================*/
 
-	}
-
-	// [9] remove this program from the page file
-	/*(ALREADY DONE for you)*/
-	pf_free_env(e); /*(ALREADY DONE for you)*/ // (removes all of the program pages from the page file)
-	/*========================*/
-
-	// [10] free the environment (return it back to the free environment list)
-	/*(ALREADY DONE for you)*/
-	free_environment(e); /*(ALREADY DONE for you)*/ // (frees the environment (returns it back to the free environment list))
-	/*========================*/
+    //  free the environment (return it back to the free environment list)
+    /*(ALREADY DONE for you)*/
+    free_environment(
+            e); /*(ALREADY DONE for you)*/ // (frees the environment (returns it back to the free environment list))
+    /*========================*/
 
 }
 
@@ -644,7 +664,6 @@ static int program_segment_alloc_map_copy_workingset(struct Env *e, struct Progr
 #if USE_KHEAP
 		struct WorkingSetElement* wse = env_page_ws_list_create_element(e, iVA);
 		wse->time_stamp = 0;
-		p->element = wse ;
 		LIST_INSERT_TAIL(&(e->page_WS_list), wse);
 #else
 		LOG_STATMENT(cprintf("Updating working set entry # %d",e->page_last_WS_index));
@@ -797,18 +816,14 @@ void initialize_uheap_dynamic_allocator(struct Env* e, uint32 daStart, uint32 da
 	//Remember:
 	//	1) there's no initial allocations for the dynamic allocator of the user heap (=0)
 	//	2) call the initialize_dynamic_allocator(..) to complete the initialization
-//	panic("not implemented yet");imit+4 expected  \n",(first_block->vir_addf ));
+
 	 	e->dastart = daStart;
 	    e->seg_brk = daStart;
 	    e->dalimit = daLimit;
-	//brk=(void*)daStart;
-//	struct U_heap *first_block;
-//	cprintf("%x <----, ",daStart);
-//
+
 
 	initialize_dynamic_allocator(daStart,0);
 
-// momken ukoon malloc bwzetha
 
 }
 

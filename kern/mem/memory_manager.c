@@ -141,19 +141,70 @@ void initialize_frame_info(struct FrameInfo *ptr_frame_info)
 // Hint: references should not be incremented
 
 //extern void env_free(struct Env *e);
-
 int allocate_frame(struct FrameInfo **ptr_frame_info)
 {
+
 	*ptr_frame_info = LIST_FIRST(&free_frame_list);
+
 	int c = 0;
-	if (*ptr_frame_info == NULL)
-	{
-		//TODO: [PROJECT'23.MS3 - BONUS] Free RAM when it's FULL
-		panic("ERROR: Kernel run out of memory... allocate_frame cannot find a free frame.\n");
-		// When allocating new frame, if there's no free frame, then you should:
-		//	1-	If any process has exited (those with status ENV_EXIT), then remove one or more of these exited processes from the main memory
-		//	2-	otherwise, free at least 1 frame from the user working set by applying the FIFO algorithm
-	}
+	if (*ptr_frame_info == NULL) {
+        //TODO: [PROJECT'23.MS3 - BONUS] Free RAM when it's FULL
+
+        // When allocating new frame, if there's no free frame, then you should:
+        //	1-	If any process has exited (those with status ENV_EXIT),
+        // then remove one or more of these exited processes from the main memory
+        // exit means cpu finish it so i can free it and push it to free shit env
+        /*
+         * env looks like frameInfo
+         * both has max size , stored in array
+         * and has free super double linked list for free objects
+         * */
+
+        // i free one env if exist
+        for (uint16 i = 0; i < NENV; i++) {
+            struct Env *e = &envs[i];
+            if (e->env_status == ENV_EXIT) {
+                env_free(e);
+                // call it recursive
+                return allocate_frame(ptr_frame_info);
+            }
+        }
+
+        //	2-	otherwise, free at least 1 frame from the user working
+
+        uint8 hah = 0;
+
+        struct WorkingSetElement *temp = NULL;
+        struct FrameInfo *fr = NULL;
+        uint32 * ptr_t;
+        struct Env *e = NULL;
+
+        // if use lru
+        for (uint16 i = 0; i < NENV; i++) {
+            e = &envs[i];
+            if ((isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX)) &&
+            		e->env_status != ENV_FREE &&
+					e->env_status != ENV_RUNNABLE) {
+
+                    // if it can free frame from sec list will return 1
+                    hah |= rm_ram_secList_add_disk(e);
+
+            } else if( e->env_status != ENV_FREE && e->env_status != ENV_RUNNABLE) {
+                // if it can free frame from act list will return 1
+            	hah |= rm_ram_wsList_add_disk(e);
+            }
+        }
+
+        if (hah == 1) {
+            // call it recursive
+            return allocate_frame(ptr_frame_info);
+        }
+
+        // m4 la2i yagd3an
+        panic("ERROR: Kernel run out of memory... allocate_frame cannot find a free frame.\n");
+
+    }
+
 
 	LIST_REMOVE(&free_frame_list,*ptr_frame_info);
 

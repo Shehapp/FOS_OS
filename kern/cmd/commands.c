@@ -857,3 +857,10 @@ int command_tst(int number_of_arguments, char **arguments)
 {
 	return tst_handler(number_of_arguments, arguments);
 }
+int command_fr(int number_of_arguments, char **arguments)
+{
+
+	        	cprintf("\n no.free_frames= %d\n",free_frame_list.size);
+	return 0;
+}
+
