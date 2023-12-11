@@ -307,6 +307,7 @@ void trap(struct Trapframe *tf)
 /*2022*/
 uint32 last_fault_va = 0;
 int8 num_repeated_fault  = 0;
+struct Env* last_faulted_env = NULL;
 void fault_handler(struct Trapframe *tf)
 {
 	int userTrap = 0;
@@ -323,7 +324,7 @@ void fault_handler(struct Trapframe *tf)
 
 	/******************************************************/
 	/*2022*///If same fault va for 3 times, then panic
-	if (last_fault_va == fault_va)
+	if (last_fault_va == fault_va && curenv == last_faulted_env)
 	{
 		num_repeated_fault++ ;
 		if (num_repeated_fault == 3)
@@ -338,6 +339,7 @@ void fault_handler(struct Trapframe *tf)
 		num_repeated_fault = 0;
 	}
 	last_fault_va = fault_va ;
+	last_faulted_env = curenv;
 	/******************************************************/
 	//2017: Check stack overflow for Kernel
 	if (!userTrap)
@@ -375,8 +377,6 @@ void fault_handler(struct Trapframe *tf)
 	{
 		if (userTrap)
 		{
-			 last_fault_va = 0;
-			 num_repeated_fault  = 0;
 			/*============================================================================================*/
 			//TODO: [PROJECT'23.MS2 - #13] [3] PAGE FAULT HANDLER - Check for invalid pointers
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
