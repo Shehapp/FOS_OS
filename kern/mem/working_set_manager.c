@@ -22,11 +22,6 @@ inline struct WorkingSetElement* env_page_ws_list_create_element(struct Env* e, 
 	struct WorkingSetElement *work= kmalloc(sizeof(struct WorkingSetElement));
 	work->virtual_address=virtual_address;
 
-	// add ws to its frame
-	uint32 *ptr_t;
-	struct FrameInfo *fr = get_frame_info(e->env_page_directory, virtual_address, &ptr_t);
-	fr->element = work;
-
 	return work;
 }
 inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
@@ -42,7 +37,6 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 				struct WorkingSetElement* ptr_tmp_WS_element = LIST_FIRST(&(e->SecondList));
 				unmap_frame(e->env_page_directory, ptr_WS_element->virtual_address);
 				LIST_REMOVE(&(e->ActiveList), ptr_WS_element);
-				kfree(ptr_WS_element);
 				if(ptr_tmp_WS_element != NULL)
 				{
 					LIST_REMOVE(&(e->SecondList), ptr_tmp_WS_element);
@@ -66,7 +60,6 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 					LIST_REMOVE(&(e->SecondList), ptr_WS_element);
 
 					kfree(ptr_WS_element);
-					break;
 				}
 			}
 		}
@@ -74,16 +67,29 @@ inline void env_page_ws_invalidate(struct Env* e, uint32 virtual_address)
 	else
 	{
 		struct WorkingSetElement *wse;
+		/*LIST_FOREACH(wse, &(e->page_WS_list))
+		{
+			if(ROUNDDOWN(wse->virtual_address,PAGE_SIZE) == ROUNDDOWN(virtual_address,PAGE_SIZE))
+			{
+				if (e->page_last_WS_element == wse)
+				{
+					e->page_last_WS_element = LIST_NEXT(wse);
+				}
+				//cprintf("%x ws-->viraddr ",wse->virtual_address);
+				LIST_REMOVE(&(e->page_WS_list), wse);
 
+				kfree(wse);
+
+				break;
+			}
+		}*/
 		uint32 *ptr_t;
 		//cprintf("%x vir--> nned to unap from working set\n",virtual_address);
 		struct FrameInfo * fr =  get_frame_info(e->env_page_directory ,virtual_address , &ptr_t);
-		if(fr!=NULL){
 		wse =fr->element;
 		//cprintf("%x vir--> nned to unap from working fr->element\n",fr->element);
 		LIST_REMOVE(&(e->page_WS_list), wse);
 		kfree(wse);
-		}
 
 	}
 }
