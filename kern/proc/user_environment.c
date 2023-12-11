@@ -453,9 +453,8 @@ void env_free(struct Env *e) {
     		uint32 *ptr_t;
     		struct FrameInfo *fr = get_frame_info(e->env_page_directory, start, &ptr_t);
     		if (fr != 0) {
-    			// i don't know why without those 2 line it works
-    			LIST_REMOVE(&(e->page_WS_list), fr->element);
-    			kfree(fr->element);
+
+    			env_page_ws_invalidate(e,start);
 
         		unmap_frame((void *)e->env_page_directory,start);
     		}
