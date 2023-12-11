@@ -141,10 +141,11 @@ void initialize_frame_info(struct FrameInfo *ptr_frame_info)
 // Hint: references should not be incremented
 
 //extern void env_free(struct Env *e);
-
 int allocate_frame(struct FrameInfo **ptr_frame_info)
 {
+
 	*ptr_frame_info = LIST_FIRST(&free_frame_list);
+
 	int c = 0;
 	if (*ptr_frame_info == NULL) {
         //TODO: [PROJECT'23.MS3 - BONUS] Free RAM when it's FULL
@@ -165,7 +166,7 @@ int allocate_frame(struct FrameInfo **ptr_frame_info)
             if (e->env_status == ENV_EXIT) {
                 env_free(e);
                 // call it recursive
-                allocate_frame(ptr_frame_info);
+                return allocate_frame(ptr_frame_info);
             }
         }
 
@@ -194,10 +195,9 @@ int allocate_frame(struct FrameInfo **ptr_frame_info)
             }
         }
 
-
         if (hah == 1) {
             // call it recursive
-            allocate_frame(ptr_frame_info);
+            return allocate_frame(ptr_frame_info);
         }
 
         // m4 la2i yagd3an
