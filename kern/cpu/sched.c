@@ -38,7 +38,6 @@ void sched_init()
 void
 fos_scheduler(void)
 {
-	//	cprintf("inside scheduler\n");
 
 	chk1();
 	scheduler_status = SCH_STARTED;
@@ -96,6 +95,7 @@ fos_scheduler(void)
 	}
 	else
 	{
+		// there is no any processes make it STOPPED and set cr3 to dir_kernel and call cmd
 		/*2015*///No more envs... curenv doesn't exist any more! return back to command prompt
 		curenv = NULL;
 		//lcr3(K_PHYSICAL_ADDRESS(ptr_page_directory));
@@ -169,7 +169,6 @@ void sched_init_BSD(uint8 numOfLevels, uint8 quantum)
     kclock_set_quantum(quantum);
     quantums[0]=quantum;
     for(int i=0;i<numOfLevels;i++){
-
         init_queue(&env_ready_queues[i]);
     }
     num_of_ready_queues=numOfLevels;
@@ -247,6 +246,8 @@ struct Env* fos_scheduler_BSD()
 
 	return next_env;
 }
+
+
 
 int get_num_process(){
 
@@ -355,6 +356,7 @@ void recalc_recent_cpu(){
 // [8] Clock Interrupt Handler
 //	  (Automatically Called Every Quantum)
 //========================================
+int64 another_ticks=0;
 void clock_interrupt_handler()
 {
 	//TODO: [PROJECT'23.MS3 - #5] [2] BSD SCHEDULER - Your code is here
@@ -366,7 +368,8 @@ void clock_interrupt_handler()
 		curenv->recent_cpu100 = fix_add(curenv->recent_cpu100 , fix_int(1));
 
 		// each second update recent for all_proccess && update Load_avg
-		if( ticks*quantums[0]%1000 == 0){
+		if( another_ticks*quantums[0]>=1000){
+			another_ticks=0;
 
 			//load_avg
 			load_avg = fix_add(fix_mul(fix_frac(59, 60), load_avg),fix_mul(fix_frac(1, 60), fix_int(get_num_process())));
@@ -384,8 +387,6 @@ void clock_interrupt_handler()
 			bool new = new_priority_clac(curenv);
 			// recalculate for all process except the running
 			recalc_priority();
-
-
 		}
 
 	}
@@ -393,6 +394,7 @@ void clock_interrupt_handler()
 
 	/********DON'T CHANGE THIS LINE***********/
 	ticks++ ;
+	another_ticks++;
 	if(isPageReplacmentAlgorithmLRU(PG_REP_LRU_TIME_APPROX))
 	{
 		update_WS_time_stamps();

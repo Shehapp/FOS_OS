@@ -213,6 +213,8 @@ void sched_new_env(struct Env* e)
 //=================================================
 // [9] Run the given EnvID:
 //=================================================
+
+// from new to ready RR
 void sched_run_env(uint32 envId)
 {
 	struct Env* ptr_env=NULL;
@@ -231,11 +233,6 @@ void sched_run_env(uint32 envId)
 			break;
 		}
 	}
-	//	cprintf("ready queue:\n");
-	//	LIST_FOREACH(ptr_env, &env_ready_queue)
-	//	{
-	//		cprintf("%s - %d\n", ptr_env->prog_name, ptr_env->env_id);
-	//	}
 
 }
 
@@ -281,6 +278,7 @@ void sched_exit_env(uint32 envId)
 	}
 	if (!found)
 	{
+		// means its running now
 		if (curenv->env_id == envId)
 		{
 			ptr_env = curenv;
@@ -306,6 +304,7 @@ void sched_exit_env(uint32 envId)
 //=================================================
 // [11] KILL the given EnvID:
 //=================================================
+// kill means from anything to new so must free it first
 void sched_kill_env(uint32 envId)
 {
 	struct Env* ptr_env=NULL;
