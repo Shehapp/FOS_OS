@@ -647,8 +647,11 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         	//cprintf("momkensh 3.1\n");
         	//notlb size 3ndo w ba2y meta ;
             //make it free and send to ff
+            uint32* destination= alloc_block_FF(new_size);
+            if(destination!=NULL)
+            	memcpy(destination, va, blk->size);
             free_block(va);
-            return alloc_block_FF(new_size);
+            return destination;
         }
 
         if((blk->prev_next_info.le_next->size + free_size >= new_size &&
