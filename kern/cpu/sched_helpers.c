@@ -558,6 +558,28 @@ void env_set_nice(struct Env* e, int nice_value)
 //    panic("Not implemented yet");
     e->nice_value=nice_value;
 
+    e->priority = PRI_MAX - nice_value*2;
+
+    e->in_q =0 ;
+	if(e->priority >PRI_MAX)
+			e->priority = PRI_MAX;
+	else if(e->priority < 0 )
+		e->priority = 0;
+
+
+/*	fixed_point_t recent_cpu_scaled = fix_unscale(e->recent_cpu100, 4);
+	int nice_scaled = e->nice_value * 2;
+	fixed_point_t priority_fixed = fix_sub(fix_sub(fix_int(PRI_MAX), recent_cpu_scaled), fix_int(nice_scaled));
+
+	// Convert the fixed-point result to an integer for the final priority value.
+	int old_priority = e->priority;
+	e->priority = fix_trunc(priority_fixed);
+
+	if(e->priority >PRI_MAX)
+			e->priority = PRI_MAX;
+	else if(e->priority < 0 )
+		e->priority = 0;*/
+
 }
 int env_get_recent_cpu(struct Env* e)
 {
