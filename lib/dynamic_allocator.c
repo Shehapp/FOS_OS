@@ -188,11 +188,11 @@ void *alloc_block_FF(uint32 size)
 
 
 
-	//print_blocks_list(heap);
+	int tot_size=size+sizeOfMetaData();
+	//cprintf("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss \n");
 
 
 	int tot_size=size+sizeOfMetaData();
-	//cprintf("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss \n");
 
 	/*int negative = -1;
 	int fonund = 0;*/
@@ -421,6 +421,14 @@ void free_block(void *va)
 	//print_blocks_list(heap);
 
 
+
+/*	const char *src = "SDHGHHK_23waljhKGKsadh,ODa";
+	char* dst=(char*)0xf0010000;
+	str2lower(dst,src);
+	cprintf("%s \n",dst);
+	panic("shehapooooo");*/
+
+
 /*	const char *src = "SDHGHHK_23waljhKGKsadh,ODa";
 	char* dst=(char*)0xf0010000;
 	str2lower(dst,src);
@@ -435,6 +443,14 @@ void free_block(void *va)
 	//print_blocks_list(heap);
 
 	//cprintf(" our blk in va %x \n",va);
+
+
+
+	//cprintf("Before \n");
+	//print_blocks_list(heap);
+
+	//cprintf(" our blk in va %x \n",va);
+
 
 	struct BlockMetaData *cur_free = ((struct BlockMetaData *)va - 1) ;
 
@@ -612,19 +628,7 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         new_blk->size = free_size - (new_size);
         LIST_INSERT_AFTER(&heap, blk, new_blk);
         //blk->is_free=1;
-        /*if(new_blk->prev_next_info.le_next!=NULL && new_blk->prev_next_info.le_next->is_free==1){
 
-
-        	cprintf("MOMKEN2\n");
-        	new_blk->size=new_blk->size+new_blk->prev_next_info.le_next->size;
-        	new_blk->is_free=1;
-        	new_blk->prev_next_info.le_next->is_free=0;
-        	new_blk->prev_next_info.le_next->size=0;
-
-
-    		LIST_REMOVE(&heap,LIST_NEXT(new_blk));
-
-        }*/
 
     	//cprintf("MOMKEN2\n");
         free_block(new_blk+1);
@@ -648,8 +652,10 @@ void *realloc_block_FF(void* va, uint32 new_size) {
         	//notlb size 3ndo w ba2y meta ;
             //make it free and send to ff
             uint32* destination= alloc_block_FF(new_size);
-            if(destination!=NULL)
-            	memcpy(destination, va, blk->size);
+            if(destination==NULL)
+            	return NULL;
+            memcpy(destination, va, blk->size);
+
             free_block(va);
             return destination;
         }

@@ -199,7 +199,7 @@ void* sbrk(int increment)
 //			if(increment<=PAGE_SIZE){
 //
 //				brk = new_brk-increment;
-//				return new_brk-increment; 
+
 //
 //			}
 
@@ -284,8 +284,6 @@ void* kmalloc(unsigned int size) {
 //        }
 //        cprintf("\n fffffffffffffffffffffffffffffffffff \n");
 
-    //print_pages(hlist);
-
     //cprintf("2nd \n");
     size = ROUNDUP(size, PAGE_SIZE);
 
@@ -359,9 +357,7 @@ void kfree(void* virtual_address)
 	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
 
 
-		//cprintf("fffffffffffffffffffffffff\n");
-		//cprintf("fffffffffffffffffffffffff\n");
-		//cprintf("fffffffffffffffffffffffff\n");
+
 
 		//print_heap();
 		free_block(virtual_address);
@@ -427,7 +423,6 @@ void kfree(void* virtual_address)
 				{
 					unmap_frame(ptr_page_directory,framee_mapped);
 					frame_mapped+=PAGE_SIZE;
-
 
 				}*/
 				cur_free_next->pages=0;
@@ -579,9 +574,6 @@ unsigned int kheap_virtual_address(unsigned int physical_address)
 	allPAs[i] = (ptr_table[j] & 0xFFFFF000) + offset;*/
 
 
-    //cprintf("1 -- virtual-> %x  physical-> %x \n",va,physical_address);
-
-
     //change this "return" according to your answer
     return va;
 }
@@ -644,10 +636,160 @@ void *krealloc(void *virtual_address, uint32 new_size)
 {
     //TODO: [PROJECT'23.MS2 - BONUS] [1] KERNEL HEAP - krealloc()
     // Write your code here, remove the panic and write your code
-    return NULL;
-    panic("krealloc() is not implemented yet...!!");
-	//TODO: [PROJECT'23.MS2 - BONUS#1] [1] KERNEL HEAP - krealloc()
-	// Write your code here, remove the panic and write your code
-	return NULL;
-	panic("krealloc() is not implemented yet...!!");
+
+	if(virtual_address==NULL){
+		return kmalloc(new_size);
+	}
+	if(new_size==0){
+		  kfree(virtual_address);
+		  return NULL;
+	}
+
+
+	// if va in blk
+	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
+		// if new size less than 2kb
+	    if (new_size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
+
+	    	return realloc_block_FF(virtual_address,new_size);
+
+	    }else{
+	    	// allocate in page
+
+	    	uint32 * destination = kmalloc(new_size);
+	    	// if there is no available pages
+	    	if(destination==NULL)
+	    		return NULL;
+
+	        struct BlockMetaData *blk = ((struct BlockMetaData *) virtual_address - 1);
+	        //copy the content into new mem
+	        memcpy(destination, virtual_address, blk->size);
+	        // free blk
+	        kfree(virtual_address);
+	        return destination;
+	    }
+	}
+
+	// if in page
+	if(virtual_address>= kernel_limit&& virtual_address<=(void*)KERNEL_HEAP_MAX){
+		// if new size less than 2kb
+	    if (new_size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
+	    	// allocate in blk
+	    	uint32 * destination = kmalloc(new_size);
+	    	// if there is no available pages
+	    	if(destination==NULL)
+	    		return NULL;
+
+	        //copy the content into new mem
+	        memcpy(destination, virtual_address, new_size);
+	        // free blk
+	        kfree(virtual_address);
+	        return destination;
+
+	    }else{
+
+	    	// try to extend
+	    	if(realloc_in_myPlace(virtual_address,new_size)){
+	    		return virtual_address;
+	    	}
+
+	    	// allocate in page
+	    	uint32 * destination = kmalloc(new_size);
+	    	// if there is no available pages
+	    	if(destination==NULL)
+	    		return NULL;
+
+	    	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
+
+	        //copy the content into new mem
+	        memcpy(destination, virtual_address, (cur->pages*PAGE_SIZE));
+	        // free blk
+	        kfree(virtual_address);
+	        return destination;
+
+	    }
+
+	}
+
+
+	panic("invalid address");
+}
+
+/*
+ * try increase|decrease size in the same place
+ * */
+uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
+
+	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
+
+    int needed_pages = ROUNDUP(new_size, PAGE_SIZE) / PAGE_SIZE;
+
+    // if equal
+   	if(needed_pages == cur->pages){
+   		return 1;
+   	}
+   	struct K_heap_sh *new_new=NULL;
+   	// if i wanna decrease the pages
+   	if(needed_pages < cur->pages){
+
+   		uint32* new_pa = virtual_address + ((1+needed_pages) * PAGE_SIZE);
+   		uint32* end_pa = virtual_address + (cur->pages* PAGE_SIZE);
+
+   		new_new = cur->prev_next_info.le_next;
+   		// if next struct free
+   		if(new_new!=NULL && new_new->is_free==1){
+
+   			new_new->pages+=(cur->pages-needed_pages);
+   			new_new->vir_addf = (uint32)new_pa;
+   		}else{
+
+   			new_new = (struct K_heap_sh*) alloc_block_FF(sizeof(struct K_heap_sh));
+   			if(new_new==NULL)
+   				return 0;
+   			new_new->pages=(cur->pages-needed_pages);
+   			new_new->vir_addf = (uint32)new_pa;
+   			new_new->is_free = 1;
+   	 		LIST_INSERT_AFTER(&hlist,cur, new_new);
+   		}
+
+   		// unmap em
+   		for(uint32* i =new_pa;i<=end_pa;i+=PAGE_SIZE){
+			unmap_frame(ptr_page_directory,(uint32)i);
+   		}
+
+		cur->pages=needed_pages;
+		return 1;
+   	}else{
+   		new_new = cur->prev_next_info.le_next;
+   		if(new_new==NULL || new_new->is_free==0 || new_new->pages + cur->pages < needed_pages)
+   			return 0;
+
+   		uint32* new_pa = virtual_address + ((1+cur->pages) * PAGE_SIZE);
+   		uint32* end_pa = virtual_address + (needed_pages* PAGE_SIZE);
+  		for(uint32* i =new_pa;i<=end_pa;i+=PAGE_SIZE){
+
+            struct FrameInfo *pll = NULL;
+            allocate_frame(&pll);
+            pll->va=(uint32)i;
+            map_frame(ptr_page_directory, pll, (int) i, PERM_WRITEABLE | PERM_PRESENT);
+
+   		}
+  		new_new->pages-=(needed_pages-cur->pages);
+  		if(new_new->pages==0){
+			LIST_REMOVE(&hlist,new_new);
+			free_block(new_new);
+  		}
+  		cur->pages = needed_pages;
+  		return 1;
+   	}
+
+}
+
+void *get_K_heap_sh(void *virtual_address){
+	struct K_heap_sh *cur;
+   	LIST_FOREACH(cur, &hlist){
+		if((void*)cur->vir_addf==virtual_address)
+			break;
+   	}
+   	return cur;
 }
