@@ -10,6 +10,7 @@
 #include <inc/fixed_point.h>
 #include <kern/cpu/sched_helpers.h>
 
+
 //2018
 #define SCH_RR 0
 #define SCH_MLFQ 1
@@ -17,12 +18,13 @@
 
 unsigned scheduler_method ;
 
-
 ///Scheduler Queues
 //=================
 struct Env_Queue env_new_queue;	// queue of all new envs
 //2015:
 struct Env_Queue env_exit_queue;	// queue of all exited envs
+//int load_avg100 ;
+//int f =1<<14;
 //2018:
 //2020:
 #if USE_KHEAP
@@ -48,6 +50,8 @@ int scheduler_status ;
 //#define CLOCK_INTERVAL_IN_CNTS TIMER_DIV((1000/CLOCK_INTERVAL_IN_MS))
 
 /*2023*/
+
+fixed_point_t load_avg ;
 /********* for BSD Priority Scheduler *************/
 #define PRI_MIN 0
 #define PRI_MAX 63
