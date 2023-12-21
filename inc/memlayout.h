@@ -214,6 +214,8 @@ struct FrameInfo {
 	struct Env *environment;
 	unsigned char isBuffered;
 	struct WorkingSetElement *element;
+	//2023
+	struct K_heap_sh *whereami;
 };
 
 #endif /* !__ASSEMBLER__ */

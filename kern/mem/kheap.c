@@ -74,31 +74,18 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 		i+=PAGE_SIZE;
 		//				cprintf("%x<-- \n , ",i);
 	}
-//
-//	for(void* i=start;i<;i=i+PAGE_SIZE)
-//	{
-//
-//		struct FrameInfo *pll=NULL;
-//
-//		allocate_frame(&pll);
-//		pll->va = (int)i;
-//		map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
-//
-//		//				cprintf("%x<-- \n , ",i);
-//	}
+
 	initialize_dynamic_allocator(daStart,initSizeToAllocate);
 
 
 //	// add page
-	/*struct FrameInfo *pll=NULL;
-	allocate_frame(&pll);
-	pll->va = daLimit;
-	map_frame(ptr_page_directory,pll,daLimit,PERM_WRITEABLE | PERM_PRESENT);*/
 
 	//print_heap();
 
 
 	//cprintf("%d1212 @@@@@",sizeof(struct K_heap_sh));
+
+
 	struct K_heap_sh *first_block;
 	first_block = (struct K_heap_sh*) alloc_block_FF(sizeof(struct K_heap_sh));
 	first_block->vir_addf = daLimit + PAGE_SIZE;
@@ -109,12 +96,6 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	LIST_INSERT_HEAD(&hlist, first_block);
 
 
-	//print_heap();
-
-	//cprintf("\n all pages =>  %d \n",first_block->pages );
-
-
-	//panic("not implemented yet");
 	return 0;
 }
 
@@ -140,18 +121,7 @@ void* sbrk(int increment)
      * 	3) Allocating additional pages for a kernel dynamic allocator will fail if the free frames are exhausted
      * 		or the break exceed the limit of the dynamic allocator. If sbrk fails, kernel should panic(...)
      */
-/*	cprintf("%x <---- obba brk \n\n", brk);
-	if(brk == (void*)-1){
-		cprintf("????? \n");
-		brk =(void*)0xF6000000;
 
-	}*/
-
-	/*if(sbr_in){
-		brk;
-		sbr_in=0;
-		return brk;
-	}*/
 
 	sbr_in=1;
 	if(increment==0){
@@ -273,18 +243,9 @@ void* kmalloc(unsigned int size) {
 
 
     }
-    struct K_heap_sh *page;
-//    cprintf("\n fffffffffffffffffffffffffffffffffff \n");
-//
-//        LIST_FOREACH(page, &hlist){
-//        	cprintf("free %d \n",page->is_free);
-//        	cprintf("size %d \n",page->pages);
-//        	cprintf("vi %x \n",page->vir_addf);
-//
-//        }
-//        cprintf("\n fffffffffffffffffffffffffffffffffff \n");
 
-    //print_pages(hlist);
+    struct K_heap_sh *page;
+
 
     //cprintf("2nd \n");
     size = ROUNDUP(size, PAGE_SIZE);
@@ -301,6 +262,7 @@ void* kmalloc(unsigned int size) {
             struct FrameInfo *pll = NULL;
 
             allocate_frame(&pll);
+            pll->whereami=page;
             pll->va=i;
             map_frame(ptr_page_directory, pll, (int) i, PERM_WRITEABLE | PERM_PRESENT);
 
@@ -370,15 +332,7 @@ void kfree(void* virtual_address)
 
 	if(virtual_address>= kernel_limit&& virtual_address<=(void*)KERNEL_HEAP_MAX){
 
-		struct K_heap_sh *cur_free;
-		LIST_FOREACH(cur_free, &hlist){
-
-			//serach for exact virtual address
-			if((void*)cur_free->vir_addf==virtual_address)
-				break;
-		}
-
-
+		struct K_heap_sh *cur_free=get_K_heap_sh(virtual_address);
 
 
 		struct K_heap_sh *cur_free_prev=NULL;
@@ -419,14 +373,7 @@ void kfree(void* virtual_address)
 
 				}
 
-			/*	uint32 framee_mapped = cur_free_next->vir_addf ;
-				for(int i=0;i<cur_free_next->pages;i++)
-				{
-					unmap_frame(ptr_page_directory,framee_mapped);
-					frame_mapped+=PAGE_SIZE;
 
-
-				}*/
 				cur_free_next->pages=0;
 				cur_free->pages=0;
 
@@ -796,11 +743,10 @@ uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
 }
 
 void *get_K_heap_sh(void *virtual_address){
-	struct K_heap_sh *cur;
-   	LIST_FOREACH(cur, &hlist){
-		if((void*)cur->vir_addf==virtual_address)
-			break;
-   	}
-   	return cur;
+
+	uint32 *ptr_page_table;
+	struct FrameInfo* ptr_frame_info = get_frame_info(ptr_page_directory, virtual_address, &ptr_page_table);
+	if( ptr_frame_info == 0 )return NULL;
+   	return ptr_frame_info->whereami;
 }
 

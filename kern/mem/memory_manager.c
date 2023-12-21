@@ -507,6 +507,7 @@ void unmap_frame(uint32 *ptr_page_directory, uint32 virtual_address)
 			cprintf("WARNING: Freeing BUFFERED frame at va %x!!!\n", virtual_address) ;
 		decrement_references(ptr_frame_info);
 
+		ptr_frame_info->whereami=NULL;
 		/*********************************************************************************/
 		/*NEW'23 el7:)
 		 * TODO: [DONE] unmap_frame(): KEEP THE VALUES OF THE AVAILABLE BITS*/
