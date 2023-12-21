@@ -638,7 +638,7 @@ void *realloc_block_FF(void* va, uint32 new_size) {
             uint32* destination= alloc_block_FF(new_size);
             if(destination==NULL)
             	return NULL;
-            memcpy(destination, va, blk->size);
+            memcpy(destination, va, blk->size-sizeOfMetaData());
             free_block(va);
             return destination;
         }

@@ -650,7 +650,6 @@ void *krealloc(void *virtual_address, uint32 new_size)
 		  return NULL;
 	}
 
-
 	// if va in blk
 	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
 		// if new size less than 2kb
@@ -668,7 +667,7 @@ void *krealloc(void *virtual_address, uint32 new_size)
 
 	        struct BlockMetaData *blk = ((struct BlockMetaData *) virtual_address - 1);
 	        //copy the content into new mem
-	        memcpy(destination, virtual_address, blk->size);
+	        memcpy(destination, virtual_address, blk->size - sizeOfMetaData());
 	        // free blk
 	        kfree(virtual_address);
 	        return destination;
@@ -681,17 +680,19 @@ void *krealloc(void *virtual_address, uint32 new_size)
 	    if (new_size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
 	    	// allocate in blk
 	    	uint32 * destination = kmalloc(new_size);
-	    	// if there is no available pages
+	    	// if there is no available blks
 	    	if(destination==NULL)
 	    		return NULL;
 
 	        //copy the content into new mem
 	        memcpy(destination, virtual_address, new_size);
-	        // free blk
+	        // free page
 	        kfree(virtual_address);
 	        return destination;
 
 	    }else{
+
+	    	// if it was in page and it will still in page
 
 	    	// try to extend
 	    	if(realloc_in_myPlace(virtual_address,new_size)){
@@ -700,7 +701,7 @@ void *krealloc(void *virtual_address, uint32 new_size)
 
 	    	// allocate in page
 	    	uint32 * destination = kmalloc(new_size);
-	    	// if there is no available pages
+	    	// if there is no available page
 	    	if(destination==NULL)
 	    		return NULL;
 
@@ -725,7 +726,6 @@ void *krealloc(void *virtual_address, uint32 new_size)
  * */
 uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
 
-	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
 
     int needed_pages = ROUNDUP(new_size, PAGE_SIZE) / PAGE_SIZE;
 
@@ -733,6 +733,9 @@ uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
    	if(needed_pages == cur->pages){
    		return 1;
    	}
+
+	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
+
    	struct K_heap_sh *new_new=NULL;
    	// if i wanna decrease the pages
    	if(needed_pages < cur->pages){
@@ -766,7 +769,9 @@ uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
 		return 1;
    	}else{
    		new_new = cur->prev_next_info.le_next;
-   		if(new_new==NULL || new_new->is_free==0 || new_new->pages + cur->pages < needed_pages)
+   		if(new_new==NULL ||
+   				new_new->is_free==0 ||
+				new_new->pages + cur->pages < needed_pages)
    			return 0;
 
    		uint32* new_pa = virtual_address + ((1+cur->pages) * PAGE_SIZE);
