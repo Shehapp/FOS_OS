@@ -464,6 +464,9 @@ void add_1_tick(){
 //========================================
 void clock_interrupt_handler()
 {
+
+	if(isSchedMethodRR())
+		return;
 	//TODO: [PROJECT'23.MS3 - #5] [2] BSD SCHEDULER - Your code is here
 	{
 		//cprintf("_________clock ticker bn5oo4 feha__________ %d\n",curenv->env_id);
