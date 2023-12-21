@@ -23,10 +23,8 @@ void _main(void)
 
 	cprintf("checking REPLACEMENT fault handling of STACK pages... \n");
 	{
-		for (i = 0 ; i < PAGE_SIZE*10 ; i+=PAGE_SIZE/2){
-			if( arr[i] != 'A') 
-				panic("modified stack page(s) not restored correctly");
-		}
+		for (i = 0 ; i < PAGE_SIZE*10 ; i+=PAGE_SIZE/2)
+			if( arr[i] != 'A') panic("modified stack page(s) not restored correctly");
 
 		if( (sys_pf_calculate_allocated_pages() - usedDiskPages) != 10) panic("Unexpected extra/less pages have been added to page file");
 

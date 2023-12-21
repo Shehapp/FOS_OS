@@ -55,6 +55,7 @@ enum
 	SYS_freeUmem,
 	SYS_allocUmem,
 	SYS_getHardLimit,
+	SYS_getcurenv_nice,
 	/*2024*/
 	//TODO: [PROJECT'23.MS1 - #3] [2] SYSTEM CALLS - Add suitable code here
 

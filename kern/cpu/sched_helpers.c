@@ -213,6 +213,8 @@ void sched_new_env(struct Env* e)
 //=================================================
 // [9] Run the given EnvID:
 //=================================================
+
+// from new to ready RR
 void sched_run_env(uint32 envId)
 {
 	struct Env* ptr_env=NULL;
@@ -231,11 +233,6 @@ void sched_run_env(uint32 envId)
 			break;
 		}
 	}
-	//	cprintf("ready queue:\n");
-	//	LIST_FOREACH(ptr_env, &env_ready_queue)
-	//	{
-	//		cprintf("%s - %d\n", ptr_env->prog_name, ptr_env->env_id);
-	//	}
 
 }
 
@@ -281,6 +278,7 @@ void sched_exit_env(uint32 envId)
 	}
 	if (!found)
 	{
+		// means its running now
 		if (curenv->env_id == envId)
 		{
 			ptr_env = curenv;
@@ -306,6 +304,7 @@ void sched_exit_env(uint32 envId)
 //=================================================
 // [11] KILL the given EnvID:
 //=================================================
+// kill means from anything to new so must free it first
 void sched_kill_env(uint32 envId)
 {
 	struct Env* ptr_env=NULL;
@@ -580,6 +579,7 @@ void env_set_nice(struct Env* e, int nice_value)
 	else if(e->priority < 0 )
 		e->priority = 0;*/
 
+
 }
 int env_get_recent_cpu(struct Env* e)
 {
@@ -591,6 +591,7 @@ int env_get_recent_cpu(struct Env* e)
 		return  fix_round(fix_scale(e->recent_cpu100, 100));
 
 	/* int num=(int)(e->recent_cpu100);
+
     double decimals=(e->recent_cpu100)-num;
     int res=0;
     if(decimals<0.5){
@@ -613,6 +614,7 @@ int get_load_average()
 
 
 	return fix_round(fix_scale(load_avg, 100));
+
 
  /*       int num=(int)(load_avg100);
         double decimals=(load_avg100)-num;
