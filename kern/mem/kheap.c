@@ -370,7 +370,7 @@ void kfree(void* virtual_address)
 
 	if(virtual_address>= kernel_limit&& virtual_address<=(void*)KERNEL_HEAP_MAX){
 
-		 struct K_heap_sh *cur_free;
+		struct K_heap_sh *cur_free;
 		LIST_FOREACH(cur_free, &hlist){
 
 			//serach for exact virtual address
@@ -728,13 +728,13 @@ uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
 
 
     int needed_pages = ROUNDUP(new_size, PAGE_SIZE) / PAGE_SIZE;
+	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
 
     // if equal
    	if(needed_pages == cur->pages){
    		return 1;
    	}
 
-	struct K_heap_sh *cur = get_K_heap_sh(virtual_address);
 
    	struct K_heap_sh *new_new=NULL;
    	// if i wanna decrease the pages
