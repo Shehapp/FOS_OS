@@ -53,7 +53,7 @@ struct Command commands[] =
 		{"nomodbuff", "disable modified buffer", command_disable_modified_buffer, 0},
 		{"modbuff", "enable modified buffer", command_enable_modified_buffer, 0},
 		{"modbufflength?", "get modified buffer length", command_get_modified_buffer_length, 0},
-
+		{"frames","get number of frames",command_fr,0},
 		//*****************************//
 		/* COMMANDS WITH ONE ARGUMENT */
 		//*****************************//
@@ -863,4 +863,3 @@ int command_fr(int number_of_arguments, char **arguments)
 	        	cprintf("\n no.free_frames= %d\n",free_frame_list.size);
 	return 0;
 }
-

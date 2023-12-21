@@ -137,14 +137,10 @@ int sys_check_WS_list(uint32* WS_list_content, int actual_WS_list_size, uint32 l
 		int idx_WS_list = 0;
 		LIST_FOREACH(ptr_WS_element, &(env->page_WS_list))
 		{
-
-
-			cprintf("actual %x__________expected %x \n",ptr_WS_element->virtual_address,WS_list_content[idx_WS_list]);
 			if (ROUNDDOWN(ptr_WS_element->virtual_address, PAGE_SIZE) != ROUNDDOWN(WS_list_content[idx_WS_list], PAGE_SIZE))
 			{
-
 				WS_list_validation = 0;
-				//break;
+				break;
 			}
 			idx_WS_list++;
 		}

@@ -199,7 +199,7 @@ void* sbrk(int increment)
 //			if(increment<=PAGE_SIZE){
 //
 //				brk = new_brk-increment;
-
+//				return new_brk-increment;�
 //
 //			}
 
@@ -284,6 +284,8 @@ void* kmalloc(unsigned int size) {
 //        }
 //        cprintf("\n fffffffffffffffffffffffffffffffffff \n");
 
+    //print_pages(hlist);
+
     //cprintf("2nd \n");
     size = ROUNDUP(size, PAGE_SIZE);
 
@@ -358,7 +360,6 @@ void kfree(void* virtual_address)
 
 
 
-
 		//print_heap();
 		free_block(virtual_address);
 		//cprintf("AFTER \n");
@@ -423,6 +424,7 @@ void kfree(void* virtual_address)
 				{
 					unmap_frame(ptr_page_directory,framee_mapped);
 					frame_mapped+=PAGE_SIZE;
+
 
 				}*/
 				cur_free_next->pages=0;
@@ -574,6 +576,9 @@ unsigned int kheap_virtual_address(unsigned int physical_address)
 	allPAs[i] = (ptr_table[j] & 0xFFFFF000) + offset;*/
 
 
+    //cprintf("1 -- virtual-> %x  physical-> %x \n",va,physical_address);
+
+
     //change this "return" according to your answer
     return va;
 }
@@ -663,7 +668,7 @@ void *krealloc(void *virtual_address, uint32 new_size)
 
 	        struct BlockMetaData *blk = ((struct BlockMetaData *) virtual_address - 1);
 	        //copy the content into new mem
-	        memcpy(destination, virtual_address, blk->size);
+	        memcpy(destination, virtual_address, blk->size-sizeOfMetaData());
 	        // free blk
 	        kfree(virtual_address);
 	        return destination;

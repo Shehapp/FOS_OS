@@ -46,19 +46,14 @@ void _main(void)
 	//===================
 
 	//("STEP 1: checking LRU LISTS after new page FAULTS...\n");
-	/*uint32 actual_active_list[6] = 
-	{0x803000, 0x801000, 0x800000, 0xeebfd000, 0x804000, 0x80c000};*/
-	
-	uint32 actual_active_list[6];
+	uint32 actual_active_list[6] ;
 	 actual_active_list[0]=0x803000;
 	 actual_active_list[1]=0x801000;
 	 actual_active_list[2]=0x800000;
 	 actual_active_list[3]=0xeebfd000;
 	 actual_active_list[4]=0x804000;
 	 actual_active_list[5]=0x80c000;
-
-
-	uint32 actual_second_list[5];
+	 uint32 actual_second_list[5];
 	 actual_second_list[0]=0x80b000;
 	 actual_second_list[1]=0x80a000;
 	 actual_second_list[2]=0x809000;

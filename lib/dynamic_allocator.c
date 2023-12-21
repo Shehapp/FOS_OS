@@ -188,11 +188,11 @@ void *alloc_block_FF(uint32 size)
 
 
 
+	//print_blocks_list(heap);
+
+
 	int tot_size=size+sizeOfMetaData();
 	//cprintf("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss \n");
-
-
-	int tot_size=size+sizeOfMetaData();
 
 	/*int negative = -1;
 	int fonund = 0;*/
@@ -421,14 +421,6 @@ void free_block(void *va)
 	//print_blocks_list(heap);
 
 
-
-/*	const char *src = "SDHGHHK_23waljhKGKsadh,ODa";
-	char* dst=(char*)0xf0010000;
-	str2lower(dst,src);
-	cprintf("%s \n",dst);
-	panic("shehapooooo");*/
-
-
 /*	const char *src = "SDHGHHK_23waljhKGKsadh,ODa";
 	char* dst=(char*)0xf0010000;
 	str2lower(dst,src);
@@ -443,14 +435,6 @@ void free_block(void *va)
 	//print_blocks_list(heap);
 
 	//cprintf(" our blk in va %x \n",va);
-
-
-
-	//cprintf("Before \n");
-	//print_blocks_list(heap);
-
-	//cprintf(" our blk in va %x \n",va);
-
 
 	struct BlockMetaData *cur_free = ((struct BlockMetaData *)va - 1) ;
 
@@ -654,8 +638,7 @@ void *realloc_block_FF(void* va, uint32 new_size) {
             uint32* destination= alloc_block_FF(new_size);
             if(destination==NULL)
             	return NULL;
-            memcpy(destination, va, blk->size);
-
+            memcpy(destination, va, blk->size-sizeOfMetaData());
             free_block(va);
             return destination;
         }
