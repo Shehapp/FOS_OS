@@ -47,6 +47,8 @@ void *brk;
 void *start;
 void *kernel_limit;
 uint32 dlimit;
+uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size);
+void *get_K_heap_sh(void *virtual_address);
 //====================================================================================
 
 #endif // FOS_KERN_KHEAP_H_
