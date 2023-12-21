@@ -299,8 +299,8 @@ void* kmalloc(unsigned int size) {
         for ( uint32 g=needed_pages; g > 0; i = i + PAGE_SIZE, g--) {
 
             struct FrameInfo *pll = NULL;
-
             allocate_frame(&pll);
+            pll->page_meta_data=page;
             pll->va=i;
             map_frame(ptr_page_directory, pll, (int) i, PERM_WRITEABLE | PERM_PRESENT);
 
@@ -370,15 +370,7 @@ void kfree(void* virtual_address)
 
 	if(virtual_address>= kernel_limit&& virtual_address<=(void*)KERNEL_HEAP_MAX){
 
-		 struct K_heap_sh *cur_free;
-		LIST_FOREACH(cur_free, &hlist){
-
-			//serach for exact virtual address
-			if((void*)cur_free->vir_addf==virtual_address)
-				break;
-		}
-
-
+		struct K_heap_sh *cur_free=get_K_heap_sh(virtual_address);
 
 
 		struct K_heap_sh *cur_free_prev=NULL;
@@ -791,10 +783,8 @@ uint8 realloc_in_myPlace(void *virtual_address, unsigned int new_size){
 }
 
 void *get_K_heap_sh(void *virtual_address){
-	struct K_heap_sh *cur;
-   	LIST_FOREACH(cur, &hlist){
-		if((void*)cur->vir_addf==virtual_address)
-			break;
-   	}
-   	return cur;
+	uint32 *ptr_page_table;
+	struct FrameInfo* ptr_frame_info = get_frame_info(ptr_page_directory,(uint32)virtual_address, &ptr_page_table);
+	if( ptr_frame_info == 0 )return NULL;
+   	return ptr_frame_info->page_meta_data;
 }
