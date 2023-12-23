@@ -145,7 +145,7 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 //=====================================
 void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
-	return;
+
 	/*==========================================================================*/
 	//TODO: [PROJECT'23.MS2 - #12] [2] USER HEAP - free_user_mem() [Kernel Side]
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
