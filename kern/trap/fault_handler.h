@@ -75,4 +75,5 @@ void fetch_frame_from_mem(struct Env * curenv, uint32 fault_va);
 int rm_ram_secList_add_disk(struct Env * curenv);
 int rm_ram_wsList_add_disk(struct Env * curenv);
 int from_sec_to_act(struct Env *e, uint32 fault_va);
+void remove_to_disk(struct Env *e,struct WorkingSetElement *temp);
 #endif /* KERN_FAULT_HANDLER_H_ */

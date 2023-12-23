@@ -107,7 +107,7 @@ void table_fault_handler(struct Env *curenv, uint32 fault_va) {
 void fetch_frame_from_mem(struct Env *e, uint32 fault_va){
     struct FrameInfo *pll = NULL;
     allocate_frame(&pll);
-    map_frame(e->env_page_directory, pll, fault_va, PERM_USER | PERM_WRITEABLE);
+    map_frame(e->env_page_directory, pll, fault_va, PERM_USER | PERM_WRITEABLE|PERM_MARK|PERM_PRESENT);
     pll->va = fault_va;
 
     int ret = pf_read_env_page(e, (void *) fault_va);
@@ -118,6 +118,8 @@ void fetch_frame_from_mem(struct Env *e, uint32 fault_va){
             // just nothing
 
         } else {
+			cprintf("\n in fetch_frame_from_mem.c %xr7\n",fault_va);
+
             sched_kill_env(e->env_id);
         }
     }
@@ -131,24 +133,7 @@ int rm_ram_secList_add_disk(struct Env *e){
     if(temp==NULL)
     	return 0;
 
-    uint32 * ptr_t;
-    struct FrameInfo *fr = NULL;
-
-    // check if modified write it on disk
-    if ((temp->virtual_address & PERM_MODIFIED) ||
-        (temp->virtual_address >= USTACKBOTTOM && temp->virtual_address < USTACKTOP) ||
-        (temp->virtual_address >= USER_HEAP_START && temp->virtual_address < USER_HEAP_MAX)) {
-
-        pt_set_page_permissions(e->env_page_directory, temp->virtual_address, 0, PERM_MODIFIED);
-        fr = get_frame_info(e->env_page_directory, temp->virtual_address, &ptr_t);
-        pf_update_env_page(e, temp->virtual_address, fr);
-
-    }
-
-    // erase ws, unmap frame, set mark 0
-    env_page_ws_invalidate(e, (int) temp->virtual_address);
-    pt_set_page_permissions(e->env_page_directory, (int) temp->virtual_address, 0, PERM_MARK);
-    unmap_frame(e->env_page_directory, temp->virtual_address);
+    remove_to_disk(e,temp);
     return 1;
 }
 
@@ -171,8 +156,10 @@ int rm_ram_wsList_add_disk(struct Env *e){
 		e->page_last_WS_element = LIST_NEXT(same_ptr);
 		env_page_ws_invalidate(e,same_ptr->virtual_address);
 		unmap_frame(e->env_page_directory,same_ptr->virtual_address);
+		pt_set_page_permissions(e->env_page_directory, (int) same_ptr->virtual_address, PERM_MARK,PERM_PRESENT );
 
-		      
+
+
 		   return 1 ;
 		}
 		else{
@@ -186,6 +173,8 @@ int rm_ram_wsList_add_disk(struct Env *e){
 		        }
 						env_page_ws_invalidate(e,lastws->virtual_address);
 						unmap_frame(e->env_page_directory,lastws->virtual_address);
+						  pt_set_page_permissions(e->env_page_directory, (int) lastws->virtual_address, PERM_MARK,PERM_PRESENT );
+
 				return 1 ;
 		    }
 
@@ -219,6 +208,33 @@ int from_sec_to_act(struct Env *e, uint32 fault_va){
 
 }
 
+void remove_to_disk(struct Env *e, struct WorkingSetElement *temp){
+
+	    // there is no any frames in sec list
+
+
+	    uint32 * ptr_t;
+	    struct FrameInfo *fr = NULL;
+
+	    // check if modified write it on disk
+	    if ((temp->virtual_address & PERM_MODIFIED) ||
+	        (temp->virtual_address >= USTACKBOTTOM && temp->virtual_address < USTACKTOP) ||
+	        (temp->virtual_address >= USER_HEAP_START && temp->virtual_address < USER_HEAP_MAX)) {
+
+	        pt_set_page_permissions(e->env_page_directory, temp->virtual_address, 0, PERM_MODIFIED);
+
+	        fr = get_frame_info(e->env_page_directory, temp->virtual_address, &ptr_t);
+	        pf_update_env_page(e, temp->virtual_address, fr);
+
+	    }
+
+	    // erase ws, unmap frame, set mark 0
+	    env_page_ws_invalidate(e, (int) temp->virtual_address);
+//	    pt_set_page_permissions(e->env_page_directory, (int) temp->virtual_address, 0, PERM_MARK);
+	    unmap_frame(e->env_page_directory, temp->virtual_address);
+	    pt_set_page_permissions(e->env_page_directory, temp->virtual_address, 0,PERM_PRESENT );
+
+}
 
 
 void page_fault_handler(struct Env *curenv, uint32 fault_va) {
@@ -289,6 +305,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
                 env_page_ws_invalidate(curenv, curenv->page_last_WS_element->virtual_address);
 
                 unmap_frame(curenv->env_page_directory, curenv->page_last_WS_element->virtual_address);
+         	    pt_set_page_permissions(curenv->env_page_directory, (int) curenv->page_last_WS_element->virtual_address, PERM_MARK,PERM_PRESENT );
 
                 LIST_INSERT_HEAD(&curenv->page_WS_list, work);
                 curenv->page_last_WS_element = LIST_NEXT(LIST_FIRST(&curenv->page_WS_list));
@@ -299,6 +316,7 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
                 env_page_ws_invalidate(curenv, curenv->page_last_WS_element->virtual_address);
 
                 unmap_frame(curenv->env_page_directory, curenv->page_last_WS_element->virtual_address);
+          	    pt_set_page_permissions(curenv->env_page_directory, (int) curenv->page_last_WS_element->virtual_address, PERM_MARK,PERM_PRESENT );
 
                 LIST_INSERT_TAIL(&curenv->page_WS_list, work);
                 curenv->page_last_WS_element = LIST_FIRST(
@@ -316,6 +334,8 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
 
 
                 unmap_frame(curenv->env_page_directory, same_ptr->virtual_address);
+          	    pt_set_page_permissions(curenv->env_page_directory, (int) same_ptr->virtual_address, PERM_MARK,PERM_PRESENT );
+
             }
 
 
@@ -335,15 +355,20 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
                 // if not exist in sec list
                 if (!from_sec_to_act(curenv,  fault_va) ){
 
-                	 // remove frame from ram and write it in disk
-                	rm_ram_secList_add_disk(curenv);
+                	 // remove frame from 2nd list ram and write it in disk qs 7 0
+                	if(!rm_ram_secList_add_disk(curenv)){
+                		temp = LIST_LAST(&curenv->ActiveList);
+                		 LIST_REMOVE(&curenv->ActiveList, temp);
+                		 remove_to_disk(curenv,temp);
+                	}
+                	else{
 
                 	 // add last ws in active to head of sec
                     temp = LIST_LAST(&curenv->ActiveList);
                     LIST_REMOVE(&curenv->ActiveList, temp);
                     pt_set_page_permissions(curenv->env_page_directory, temp->virtual_address, 0, PERM_PRESENT);
                     LIST_INSERT_HEAD(&curenv->SecondList, temp);
-
+                	}
 
                     // read from disk and push front in Active
                     fetch_frame_from_mem(curenv, fault_va);
