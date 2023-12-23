@@ -476,6 +476,7 @@ int command_run_program(int number_of_arguments, char **arguments)
 int command_kill_program(int number_of_arguments, char **arguments)
 {
 	int32 envId = strtol(arguments[1],NULL, 10);
+	cprintf("\n in command_kill_program.c\n");
 
 	sched_kill_env(envId);
 

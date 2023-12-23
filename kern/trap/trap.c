@@ -391,6 +391,7 @@ void fault_handler(struct Trapframe *tf)
 
 				}
 			else if(!(page_permissions & PERM_MARK)){
+				cprintf("\n in trap.cc\n");
 					sched_kill_env(curenv->env_id);
 				}
 			}

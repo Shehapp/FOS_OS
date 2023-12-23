@@ -316,6 +316,8 @@ void sched_kill_env(uint32 envId)
 															{
 			if(ptr_env->env_id == envId)
 			{
+				cprintf("\n fnijdsfkds\n");
+
 				cprintf("killing[%d] %s from the NEW queue...", ptr_env->env_id, ptr_env->prog_name);
 				sched_remove_new(ptr_env);
 				env_free(ptr_env);

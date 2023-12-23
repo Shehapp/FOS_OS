@@ -421,6 +421,8 @@ static int sys_destroy_env(int32 envid)
 		cprintf("[%08x] destroying %08x\n", curenv->env_id, e->env_id);
 	}
 	//2015
+	cprintf("\n in syscall.c\n");
+
 	sched_kill_env(e->env_id);
 
 	return 0;
@@ -633,6 +635,7 @@ uint32 syscall(uint32 syscallno, uint32 a1, uint32 a2, uint32 a3, uint32 a4, uin
 		break;
 	case SYS_freeUmem:
 		if(a1 == 0 || a1 >= USER_LIMIT || a1 + a2 > USER_LIMIT){
+			cprintf("\n in SYS_freeUmem.c\n");
 			sched_kill_env(curenv->env_id);
 		}
 		else{
