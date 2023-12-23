@@ -152,6 +152,9 @@ void free(void* virtual_address)
 					if((void*)cur_free->vir_addf==virtual_address)
 						break;
 				}
+				if(cur_free==NULL)
+					return;
+				cprintf("\n %x \n",cur_free);
 
 
 
@@ -185,7 +188,6 @@ void free(void* virtual_address)
 
 
 						//umap all unused frames
-
 						sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
 
 

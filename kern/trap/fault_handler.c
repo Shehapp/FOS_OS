@@ -113,12 +113,13 @@ void fetch_frame_from_mem(struct Env *e, uint32 fault_va){
     int ret = pf_read_env_page(e, (void *) fault_va);
     if (ret == E_PAGE_NOT_EXIST_IN_PF) {
         if ((fault_va >= USTACKBOTTOM && fault_va < USTACKTOP) ||
-            (fault_va >= USER_HEAP_START && fault_va < USER_HEAP_MAX)) {
+            (fault_va >= USER_HEAP_START && fault_va < USER_HEAP_MAX)||
+			(USTABDATA>fault_va)){
 
             // just nothing
 
         } else {
-			cprintf("\n in fetch_frame_from_mem.c %xr7\n",fault_va);
+			cprintf("\n in fetch_frame_from_mem.c %x\n",fault_va);
 
             sched_kill_env(e->env_id);
         }
@@ -232,7 +233,7 @@ void remove_to_disk(struct Env *e, struct WorkingSetElement *temp){
 	    env_page_ws_invalidate(e, (int) temp->virtual_address);
 //	    pt_set_page_permissions(e->env_page_directory, (int) temp->virtual_address, 0, PERM_MARK);
 	    unmap_frame(e->env_page_directory, temp->virtual_address);
-	    pt_set_page_permissions(e->env_page_directory, temp->virtual_address, 0,PERM_PRESENT );
+	    pt_set_page_permissions(e->env_page_directory, temp->virtual_address, PERM_MARK,PERM_PRESENT );
 
 }
 
@@ -358,8 +359,8 @@ void page_fault_handler(struct Env *curenv, uint32 fault_va) {
                 	 // remove frame from 2nd list ram and write it in disk qs 7 0
                 	if(!rm_ram_secList_add_disk(curenv)){
                 		temp = LIST_LAST(&curenv->ActiveList);
-                		 LIST_REMOVE(&curenv->ActiveList, temp);
-                		 remove_to_disk(curenv,temp);
+                		LIST_REMOVE(&curenv->ActiveList, temp);
+                		remove_to_disk(curenv,temp);
                 	}
                 	else{
 

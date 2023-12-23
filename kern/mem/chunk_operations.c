@@ -145,6 +145,7 @@ void allocate_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 //=====================================
 void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 {
+	return;
 	/*==========================================================================*/
 	//TODO: [PROJECT'23.MS2 - #12] [2] USER HEAP - free_user_mem() [Kernel Side]
 	int pages = ROUNDUP(size,PAGE_SIZE) / PAGE_SIZE;
@@ -174,10 +175,8 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 
 
 
-	if(ptr_t !=NULL){
-		pt_set_page_permissions(e->env_page_directory,(int) i,PERM_WRITEABLE,PERM_MARK);
-	}
-			pf_remove_env_page(e,(int)i);
+	i=(void *) ((uint32)i>>12<<12);
+	pf_remove_env_page(e,(int)i);
 
 
 		}
