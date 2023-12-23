@@ -152,31 +152,45 @@ void free_user_mem(struct Env* e, uint32 virtual_address, uint32 size)
 
 		for(void* i=(void*)virtual_address;i< ((void*)size+virtual_address);i+=PAGE_SIZE){
 
-			uint32 *ptr_t ;
+		uint32 *ptr_t ;
 		get_page_table(e->env_page_directory,(int)i,&ptr_t);
-		if(ptr_t !=NULL){
+		if(ptr_t !=0){
 
 			uint32 pp =pt_get_page_permissions(e->env_page_directory,(int)i);
+//			cprintf("\n start\n");
 			if(pp & PERM_PRESENT){
 				env_page_ws_invalidate(e,(int)i);
+//				cprintf("\n ok 1\n");
 				unmap_frame(e->env_page_directory,(int) i);
+//				cprintf("\n ok 2\n");
 				if(!(isPageReplacmentAlgorithmLRU(PG_REP_LRU_LISTS_APPROX))){
+//					cprintf("\n ok 3\n");
 				     if(e->page_last_WS_element != LIST_FIRST(&e->page_WS_list)){
+//							cprintf("\n ok 4\n");
 			             struct WorkingSetElement* same_ptr = LIST_FIRST(&e->page_WS_list) ;
+//							cprintf("\n ok 5\n");
 			             LIST_REMOVE(&e->page_WS_list,same_ptr);
+//							cprintf("\n ok 6\n");
 					     LIST_INSERT_TAIL(&e->page_WS_list , same_ptr);
+//							cprintf("\n ok 7\n");
 
 				     }
+//						cprintf("\n ok 8\n");
+
 
 				}
+//				cprintf("\n ok 9\n");
+
 
 			}
+//			cprintf("\n end\n");
+
 		}
 
 
 
-	i=(void *) ((uint32)i>>12<<12);
-	pf_remove_env_page(e,(int)i);
+		pt_set_page_permissions(e->env_page_directory,virtual_address, 0,1<<12);
+		pf_remove_env_page(e,(int)i);
 
 
 		}

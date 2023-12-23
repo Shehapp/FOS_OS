@@ -154,7 +154,6 @@ void free(void* virtual_address)
 				}
 				if(cur_free==NULL)
 					return;
-				cprintf("\n %x \n",cur_free);
 
 
 
@@ -213,7 +212,7 @@ void free(void* virtual_address)
 					cur_free_next->is_free=0;
 
 
-					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+					sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
 
 
 					cur_free_next->pages=0;
@@ -239,14 +238,13 @@ void free(void* virtual_address)
 					//cur_free->size=0;
 
 
-					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+					sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
 
 
 					cur_free->pages=0;
 					void*ptr = cur_free;
-					//cprintf("%x <------ptr \n",ptr);
-					//cprintf("%x <------ptr-16 \n",ptr-16);
-					//print_heap();
+
+
 
 					free_block(ptr);
 
@@ -260,7 +258,7 @@ void free(void* virtual_address)
 
 					//cprintf("%d free now ",sys_calculate_free_frames());
 					//cprintf("%d",cur_free->pages);
-					sys_free_user_mem((int) virtual_address,cur_free->pages*4096);
+					sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
 					//cprintf("%d free now ",sys_calculate_free_frames());
 					cur_free->is_free=1;
 				}
