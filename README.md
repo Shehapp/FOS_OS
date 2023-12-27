@@ -85,6 +85,8 @@ FOS provides a command line interface (CLI) which allows users to load, execute 
   FOS> load qs 5000 100  // active list of size 5000 and second list of size 100
   FOS> load ms1 100 20 
   FOS> runall
+  FOS> kill 2048 // call env_free to free up exit env
+  FOS> kill 2049
   ```
 
 
