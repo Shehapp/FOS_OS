@@ -44,7 +44,7 @@ We utilize both LRU ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/k
 
 * Solve competition in CPU through multiprocessing:  
   This allows FOS to run multiple processes simultaneously.  
-  The Round Robin (RR) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) and Berkeley Software Distribution (BSD) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) strategies are used to manage this.
+  The Round Robin (RR) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) and Berkeley Software Distribution (BSD) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L320)) strategies are used to manage this.
 
 ### 4. User Mode
 
