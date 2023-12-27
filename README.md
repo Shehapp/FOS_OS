@@ -1,134 +1,103 @@
-# Memory and CPU Management Documentation
 
-## Virtual Memory
+# FOS
+An operating system capable of executing various programs.  
+It optimizes CPU usage through its multiprocessing features   
+and offers a user interface with commands for program execution.
 
-Virtual memory is a crucial aspect of system management, utilizing both RAM and Disk resources to enhance the performance and efficiency of a computer system.
+### 1. Virtual Memory Management
+Kernel creates a separate **4GB** virtual memory space for each process.   
+This virtual space is connected to **RAM** or **Disk**
+using **Paging Address Translation**.  
+Both **virtual memory** and **physical memory** are divided into Pages of size **4KB**.  
+This allows processes to seamlessly use **memory beyond the physical RAM constraints**  
+while also providing **memory protection** and **sharing capabilities**.  
+[_**Virtual Memory layout**_](https://github.com/Shehapp/FOS_OS/blob/main/inc/memlayout.h#L27)
 
-## Parallel Program Execution
-
-Efficiently load and run multiple programs in parallel to make the most out of system resources and ensure optimal multitasking capabilities.
-
-## Page Fault Handler
-
-### Replacement Strategies
-
-Implementing strategies for handling page faults, including replacement algorithms:
-
-- FIFO (First-In-First-Out)
-- LRU (Least Recently Used)
-
-## Dynamic Allocation and Deallocation
-
-Facilitate dynamic memory management with features such as dynamic allocation and deallocation. For example, creating new threads dynamically using constructs like `new Thread()`.
-
-## Environment Cleanup
-
-Ensure proper cleanup and resource release when programs or threads exit. This includes releasing allocated memory and other resources to maintain system integrity.
-
----
-
-## How to Use
-
-Provide instructions or code snippets on how to incorporate and utilize the memory and CPU management features in your project.
-
-### Example:
-
-```java
-// Code snippet for dynamic allocation and thread creation
-Thread newThread = new Thread();
-// ... (additional code)
-
-// Code snippet for releasing resources on program exit
-// ...
-```
+### 2. Kernel Memory
+Kernel Memory starts from a constant point, KERNEL_BASE, and extends up to the base plus 265MB in Virtual Memory  
+and is mapped in RAM from 0 to 256MB.  
+kernel Memory allocates executable files (.exe) of programs that need to run,  
+along with page tables and directory tables, among other things. It includes it own heap and stack.  
+Memory in the kernel heap can be allocated ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L254)) using first fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L180)) and best fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L315)) strategies,  
+and it also supports memory freeing ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L348)) and reallocation ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L640)).
 
 
-# Page Replacement Algorithms in FOS
-
-## overview 
-
-### FIFO Page Replacement Algorithm
-The `FIFO` algorithm follows the principle of replacing the oldest page in the memory. It maintains a queue of pages in memory, and when a page needs to be replaced, the page at the front of the queue (the oldest) is selected for removal.
-
-#### Implementation
-
-- Maintain a LIST  to keep track of the order in which pages are loaded into memory.
-- When a page is brought into memory, it is added to the back of the LIST.
-- When a page needs to be replaced, the page at the front of the queue is removed.
-
-#### Advantages:
-
-- Simple and easy to implement.
-- Does not require maintaining usage history.
-
-#### Disadvantages:
-
-- May not perform well in scenarios where the usage pattern of pages is not reflected in their arrival order.
+### 2. User Memory
+User Memory from 0 and extends up to KERNEL_BASE in Virtual Memory.  
+The User Memory allocates Program Code and Data,
+It includes it own heap and stack.  
+Memory in the User heap can be allocated ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/uheap.c#L55)) and it also supports memory freeing ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/uheap.c#L134)).
 
 
-
-> Note: `FIFO` is the default schedular
-
-### LRU Page Replacement Algorithm
-
-`LRU` aims to replace the page that has not been used for the longest time. It keeps track of the order in which pages are accessed, and when a page needs to be replaced, the one that has not been used for the longest duration is selected.
-
-#### Implementation
-
-Active List:
-
-- Represents the pages currently in use.
-- Maintains the order of page access.
-- New pages are added to the front of the active list when accessed.
-
-Secondary List:
-
-- Serves as a backup list for pages not actively in use.
-- Pages are moved from the active list to the secondary list when they are not accessed frequently.
-
-#### Advantages:
-- Considers the historical usage pattern of pages.
-- Generally performs well in various scenarios.
-#### Disadvantages:
-
-- Implementation can be more complex than FIFO.
- - Requires additional data structures to track access times.
+### 3. Process
+When a process needs to run, kernel creates a structure called 'Env' for it.  
+This structure contains metadata about the process such as its id, status, and current working set ([_see more_](https://github.com/Shehapp/FOS_OS/blob/main/inc/environment_definitions.h#L91)).  
+kernel handles this allocation and creates a 'working set' structure for each frame it allocates.  
+We utilize both LRU ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L346)) and FIFO ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L277)) strategies to manage the working set of a process.
 
 
+### 3. Kernel Mode
+* Solve competition in Memory by virtual memory (RAM + DISK):  
+  FOS can run programs with size greater than RAM.  
+  the system can select a victims from environments and add em to DISK if RAM becomes full.
 
-```c
-// to enable LRU in Fos
-Fos > lru 2 
-```
 
-#  CPU Scheduler for FOS
-## Overview
-FOS (Fake Operating System) project  provides support for two scheduling algorithms: Round Robin `RR`, and `BSD Scheduler`
-### Round Robin (RR) 
-- Simple round-robin scheduling.
-- Enqueues the current environment if it still exists.
-- Picks the next environment from the ready queue and resets the quantum.
+* Solve competition in CPU through multiprocessing:  
+  This allows FOS to run multiple processes simultaneously.  
+  The Round Robin (RR) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) and Berkeley Software Distribution (BSD) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) strategies are used to manage this.
 
-### Multilevel feeedback queues (BSD)
+### 4. User Mode
 
-- Keep information about recent CPU usage for each environment
-- Give highest priority to environment that has used the least CPU time recently.
-- Interactive and I/O-bound environment will use little CPU time and remain at high priority.
-- CPU-bound environment will eventually get lower priority as they accumulate CPU time.
-- [Stanford.edu](https://www.scs.stanford.edu/23wi-cs212/pintos/pintos_7.html) for more info about BSD 
+
+FOS provides a command line interface (CLI) which allows users to load, execute and kill programs.
+
+
+![My Image](img/userCommand.png)
 
 
 
 
 
-> Note: `RR` is the default schedular
+* enable FIFO strategies
+  ```c
+  FOS> fifo
+  ```
 
 
-```c
-// to enable BSD by a 5 quantum & load multiple process
-Fos > schedBSD 64 5
-load fib 500 -10 
-load ms1 1500 -5 
-runall 
-```
+* enable LRU strategies
+  ```c
+  FOS> lru 2
+  ```
+
+* enable BSD strategies
+  ```c
+  // to enable BSD by 64 priorities and  5 quantum
+  FOS> schedBSD 64 5
+  ```
+
+
+
+### 5. code example
+  ```c
+  //run merge sort and quick sort by lru and BSD
+  FOS> lru 2
+  FOS> schedBSD 64 10
+  FOS> load qs 5000 100  // active list of size 5000 and second list of size 100
+  FOS> load ms1 100 20 
+  FOS> runall
+  ```
+
+
+### 6. References
+* [ _BSD Scheduler_ ](https://www.scs.stanford.edu/23wi-cs212/pintos/pintos_7.html)
+* [ _Round-robin scheduling_ ](https://en.wikipedia.org/wiki/Round-robin_scheduling)
+* [ _Paging_strategy_ ](https://byjus.com/gate/paging-in-operating-system-notes/#:~:text=Paging%20in%20OS-,What%20is%20Paging%20in%20the%20OS%3F,also%20be%20separated%20into%20frames.)
+
+
+### 6. Contribution
+If you think that anything can be improved in any way, please do suggest :  
+Open pull request with improvements  
+Discuss ideas in issues.
+
+
 
