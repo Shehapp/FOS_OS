@@ -94,6 +94,8 @@ FOS provides a command line interface (CLI) which allows users to load, execute 
 * [ _BSD Scheduler_ ](https://www.scs.stanford.edu/23wi-cs212/pintos/pintos_7.html)
 * [ _Round-robin scheduling_ ](https://en.wikipedia.org/wiki/Round-robin_scheduling)
 * [ _Paging_strategy_ ](https://byjus.com/gate/paging-in-operating-system-notes/#:~:text=Paging%20in%20OS-,What%20is%20Paging%20in%20the%20OS%3F,also%20be%20separated%20into%20frames.)
+* [ _Page Replacement Algorithms_](https://www.geeksforgeeks.org/page-replacement-algorithms-in-operating-systems/)
+* [ _MMU Role in intel 80386_](https://pdos.csail.mit.edu/6.828/2004/readings/i386/c05.htm)
 
 
 ### 6. Contribution
