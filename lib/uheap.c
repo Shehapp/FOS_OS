@@ -64,7 +64,6 @@ void* malloc(uint32 size)
 	//==============================================================
 	//TODO: [PROJECT'23.MS2 - #09] [2] USER HEAP - malloc() [User Side]
 	// Write your code here, remove the panic and write your code
-	//panic("malloc() is not implemented yet...!!");
 
 	if(size<= DYN_ALLOC_MAX_BLOCK_SIZE){
 	        if(sys_isUHeapPlacementStrategyFIRSTFIT()){
@@ -134,7 +133,6 @@ void* malloc(uint32 size)
 void free(void* virtual_address)
 {
 	//TODO: [PROJECT'23.MS2 - #11] [2] USER HEAP - free() [User Side]
-	// Write your code here, remove the panic and write your code
 
 
 		if(virtual_address>=(void*)USER_HEAP_START && sys_get_hard_limit()>virtual_address){
@@ -177,7 +175,6 @@ void free(void* virtual_address)
 				if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
 
 
-						//cprintf("next&prev\n");
 
 						//case 1 next&prev  is_free
 						cur_free_prev->pages=cur_free_prev->pages + cur_free->pages +cur_free_next->pages;
@@ -206,7 +203,6 @@ void free(void* virtual_address)
 				else if(cur_free_next!=NULL && cur_free_next->is_free){
 
 
-					//cprintf("next\n");
 					cur_free->pages=cur_free->pages+cur_free_next->pages;
 					cur_free->is_free=1;
 					cur_free_next->is_free=0;
@@ -219,23 +215,18 @@ void free(void* virtual_address)
 					void*ptr = cur_free_next;
 					free_block(ptr);
 					LIST_REMOVE(&UHlist,cur_free_next);
-					//print_blocks_list(heap);
 
-					//panic("stop");
 
 				}
 
 				else if(cur_free_prev!=NULL && cur_free_prev->is_free){
 
 
-					//cprintf("prev\n");
-					//cprintf("pre \n");
 
 					//case 3 prev  is_free
 					cur_free_prev->pages=cur_free_prev->pages+cur_free->pages;
 					cur_free_prev->is_free=1;
 					cur_free->is_free=0;
-					//cur_free->size=0;
 
 
 					sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
@@ -248,18 +239,13 @@ void free(void* virtual_address)
 
 					free_block(ptr);
 
-					//print_heap();
 					LIST_REMOVE(&UHlist,cur_free);
 
 
 				}
 				else{
 
-
-					//cprintf("%d free now ",sys_calculate_free_frames());
-					//cprintf("%d",cur_free->pages);
 					sys_free_user_mem((int) virtual_address,cur_free->pages*PAGE_SIZE);
-					//cprintf("%d free now ",sys_calculate_free_frames());
 					cur_free->is_free=1;
 				}
 

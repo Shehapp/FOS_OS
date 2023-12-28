@@ -336,7 +336,6 @@ void sys_allocate_chunk(uint32 virtual_address, uint32 size, uint32 perms)
 //TODO: [PROJECT'23.MS1 - #3] [2] SYSTEM CALLS - Implement these system calls
 void* sys_sbrk(int increment)
 {
-	//Comment the following line before start coding...
 	//panic("not implemented yet");
 	uint32 Variable;
 	if(increment >= 0)

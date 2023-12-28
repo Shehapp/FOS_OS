@@ -382,9 +382,7 @@ void fault_handler(struct Trapframe *tf)
 			//(e.g. pointing to unmarked user heap page, kernel or wrong access rights),
 
 			uint32 fa = fault_va;
-	        //fault_va=ROUNDDOWN(fault_va,PAGE_SIZE);
 			uint32 page_permissions = pt_get_page_permissions(curenv->env_page_directory ,fault_va);
-			//cprintf("%d <----- page_permisioin mark\n",page_permissions &PERM_MARK);
 			 if((fault_va>=USER_HEAP_START && fault_va <USER_HEAP_MAX )){
 
 				if(fault_va <=curenv->dalimit) {
@@ -418,9 +416,6 @@ void fault_handler(struct Trapframe *tf)
 		// we have normal page fault =============================================================
 		faulted_env->pageFaultsCounter ++ ;
 
-		//		cprintf("[%08s] user PAGE fault va %08x\n", curenv->prog_name, fault_va);
-		//		cprintf("\nPage working set BEFORE fault handler...\n");
-		//		env_page_ws_print(curenv);
 
 		if(isBufferingEnabled())
 		{
@@ -431,7 +426,6 @@ void fault_handler(struct Trapframe *tf)
 			//page_fault_handler(faulted_env, fault_va);
 			page_fault_handler(faulted_env, fault_va);
 		}
-		//		cprintf("\nPage working set AFTER fault handler...\n");
 		//		env_page_ws_print(curenv);
 
 

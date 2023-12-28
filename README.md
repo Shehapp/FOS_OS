@@ -58,18 +58,18 @@ FOS provides a command line interface (CLI) which allows users to load, execute 
 
 
 
-* enable FIFO strategies
+* enable FIFO strategy
   ```c
   FOS> fifo
   ```
 
 
-* enable LRU strategies
+* enable LRU strategy
   ```c
   FOS> lru 2
   ```
 
-* enable BSD strategies
+* enable BSD strategy
   ```c
   // to enable BSD by 64 priorities and  5 quantum
   FOS> schedBSD 64 5

@@ -52,14 +52,11 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	kernel_limit=(void*)daLimit;
 	brk = (void*)(daStart+initSizeToAllocate);
 
-	//cprintf("%x <----- breakk /n",brk);
-
 
 
 	// store blks
 	void* Hlimit =ROUNDUP(kernel_limit,PAGE_SIZE);
 	int k  =ROUNDUP(initSizeToAllocate,PAGE_SIZE);
-	//void* l7d =ROUNDUP(initSizeToAllocate,PAGE_SIZE);
 	int num_pages = k /PAGE_SIZE;
 
 	void* i=start;
@@ -72,33 +69,11 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 		pll->va = (int)i;
 		map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
 		i+=PAGE_SIZE;
-		//				cprintf("%x<-- \n , ",i);
 	}
-//
-//	for(void* i=start;i<;i=i+PAGE_SIZE)
-//	{
-//
-//		struct FrameInfo *pll=NULL;
-//
-//		allocate_frame(&pll);
-//		pll->va = (int)i;
-//		map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
-//
-//		//				cprintf("%x<-- \n , ",i);
-//	}
+
 	initialize_dynamic_allocator(daStart,initSizeToAllocate);
 
 
-//	// add page
-	/*struct FrameInfo *pll=NULL;
-	allocate_frame(&pll);
-	pll->va = daLimit;
-	map_frame(ptr_page_directory,pll,daLimit,PERM_WRITEABLE | PERM_PRESENT);*/
-
-	//print_heap();
-
-
-	//cprintf("%d1212 @@@@@",sizeof(struct K_heap_sh));
 	struct K_heap_sh *first_block;
 	first_block = (struct K_heap_sh*) alloc_block_FF(sizeof(struct K_heap_sh));
 	first_block->vir_addf = daLimit + PAGE_SIZE;
@@ -108,13 +83,6 @@ int initialize_kheap_dynamic_allocator(uint32 daStart, uint32 initSizeToAllocate
 	LIST_INIT(&hlist);
 	LIST_INSERT_HEAD(&hlist, first_block);
 
-
-	//print_heap();
-
-	//cprintf("\n all pages =>  %d \n",first_block->pages );
-
-
-	//panic("not implemented yet");
 	return 0;
 }
 
@@ -140,30 +108,15 @@ void* sbrk(int increment)
      * 	3) Allocating additional pages for a kernel dynamic allocator will fail if the free frames are exhausted
      * 		or the break exceed the limit of the dynamic allocator. If sbrk fails, kernel should panic(...)
      */
-/*	cprintf("%x <---- obba brk \n\n", brk);
-	if(brk == (void*)-1){
-		cprintf("????? \n");
-		brk =(void*)0xF6000000;
-
-	}*/
-
-	/*if(sbr_in){
-		brk;
-		sbr_in=0;
-		return brk;
-	}*/
 
 	sbr_in=1;
 	if(increment==0){
-		//cprintf("????? \n");
 		sbr_in=0;
 				return brk;
 			}
 
-	//cprintf("_____________sbrk in kernel-______________\n");
 	int move_size=ROUNDUP(increment,PAGE_SIZE);
-	//print_pages(hlist);
-	//	void* new_brk=brk+move_size;
+
 
 		if(brk + move_size>=kernel_limit)
 		{
@@ -174,18 +127,15 @@ void* sbrk(int increment)
 		{
 
 
-			//cprintf("_____________sbrk in kernel-______________\n");
 			for(void*i=brk;i<brk + move_size;i=i+PAGE_SIZE){
 				struct FrameInfo *pll=NULL;
 					allocate_frame(&pll);
 					pll->va = (int)i;
 					map_frame(ptr_page_directory,pll,(int)i,PERM_WRITEABLE | PERM_PRESENT);
 
-					//print_heap();
 
 				}
-			//cprintf("brk -->%x    old brk----> \n",brk,brk-move_size);
-			//cprintf("brk -->%x    old brk----> \n",brk,brk-move_size);
+
 			sbr_in=0;
 			brk = brk+move_size;
 			return brk-move_size;
@@ -195,17 +145,7 @@ void* sbrk(int increment)
 
 
 			increment=increment*-1;
-//
-//			if(increment<=PAGE_SIZE){
-//
-//				brk = new_brk-increment;
-//				return new_brk-increment;�
-//
-//			}
 
-
-			//int move_size=ROUNDUP(increment,PAGE_SIZE);
-			//void* new_brk=brk-increment;
 			for(void*i=brk;i>=brk-increment;i=i-PAGE_SIZE)
 			{
 
@@ -219,8 +159,6 @@ void* sbrk(int increment)
 		}
 		return 0;
 
-    //MS2: COMMENT THIS LINE BEFORE START CODING====
- //   panic("not implemented yet");
 }
 
 
@@ -256,45 +194,26 @@ void* kmalloc(unsigned int size) {
     //refer to the project presentation and documentation for details
     // use "isKHeapPlacementStrategyFIRSTFIT() ..." functions to check the current strategy
 
-    //             2kb
-	// cprintf("brk ---> %x\n",brk);
+
 
     if (size <= DYN_ALLOC_MAX_BLOCK_SIZE) {
-       // cprintf("1st\n");
-       // print_heap();
-        //cprintf("%d <--- needed size",size);
+
        if( isKHeapPlacementStrategyFIRSTFIT()){
        void* ptra = alloc_block_FF(size);
-       //cprintf("%x <--- alloc ", ptra);
-       //cprintf("%x <--- brk ", brk);
-      // print_heap();
+
        return ptra;
        }
 
 
     }
     struct K_heap_sh *page;
-//    cprintf("\n fffffffffffffffffffffffffffffffffff \n");
-//
-//        LIST_FOREACH(page, &hlist){
-//        	cprintf("free %d \n",page->is_free);
-//        	cprintf("size %d \n",page->pages);
-//        	cprintf("vi %x \n",page->vir_addf);
-//
-//        }
-//        cprintf("\n fffffffffffffffffffffffffffffffffff \n");
 
-    //print_pages(hlist);
-
-    //cprintf("2nd \n");
     size = ROUNDUP(size, PAGE_SIZE);
 
     int needed_pages = size / PAGE_SIZE;
 
-	//cprintf("\n- pages =>  %d \n", needed_pages);
 
     LIST_FOREACH(page, &hlist)if (page->is_free == 1 && page->pages >= needed_pages) {
-    	//cprintf("\n iam here \n");
     	uint32 i = page->vir_addf;
         for ( uint32 g=needed_pages; g > 0; i = i + PAGE_SIZE, g--) {
 
@@ -309,21 +228,15 @@ void* kmalloc(unsigned int size) {
     	if(page->pages == needed_pages)
     		return (void *)page->vir_addf;
 
-    	//print_pages(hlist);
     	struct K_heap_sh *new_one=NULL;
-    	//cprintf("OBBBBA \n");
-    	//print_heap();
    		new_one = (struct K_heap_sh*) alloc_block_FF(sizeof(struct K_heap_sh));
-   		//cprintf("OBBBBA \n");
    		new_one->vir_addf = i;
    		new_one->pages=page->pages - needed_pages;
   		new_one->is_free=1;
  		LIST_INSERT_AFTER(&hlist,page, new_one);
  		page->pages = needed_pages;
     	page->is_free = 0;
- 		//cprintf("after allocation",size);
- 		//print_pages(hlist);
-    	//page->is_free = 0;
+
 
 		return  (void *)page->vir_addf;
     }
@@ -348,22 +261,18 @@ void* kmalloc(unsigned int size) {
 void kfree(void* virtual_address)
 {
 
-	//print_pages(hlist);
 
     //TODO: [PROJECT'23.MS2 - #04] [1] KERNEL HEAP - kfree()
     //refer to the project presentation and documentation for details
     // Write your code here, remove the panic and write your code
     //panic("kfree() is not implemented yet...!!");
 
-	//cprintf("needed_free_virtual_address->%x \n",virtual_address);
 	if(virtual_address>=(void*)KERNEL_HEAP_START && virtual_address<=kernel_limit ){
 
 
 
-		//print_heap();
 		free_block(virtual_address);
-		//cprintf("AFTER \n");
-		//print_heap();
+
 		return ;
 
 	}
@@ -373,7 +282,6 @@ void kfree(void* virtual_address)
 		 struct K_heap_sh *cur_free;
 		LIST_FOREACH(cur_free, &hlist){
 
-			//serach for exact virtual address
 			if((void*)cur_free->vir_addf==virtual_address)
 				break;
 		}
@@ -400,7 +308,6 @@ void kfree(void* virtual_address)
 		if(cur_free_prev !=NULL && cur_free_next!=NULL && cur_free_next->is_free && cur_free_prev->is_free) {
 
 
-				//cprintf("next&prev\n");
 
 				//case 1 next&prev  is_free
 				cur_free_prev->pages=cur_free_prev->pages + cur_free->pages +cur_free_next->pages;
@@ -419,14 +326,6 @@ void kfree(void* virtual_address)
 
 				}
 
-			/*	uint32 framee_mapped = cur_free_next->vir_addf ;
-				for(int i=0;i<cur_free_next->pages;i++)
-				{
-					unmap_frame(ptr_page_directory,framee_mapped);
-					frame_mapped+=PAGE_SIZE;
-
-
-				}*/
 				cur_free_next->pages=0;
 				cur_free->pages=0;
 
@@ -444,7 +343,6 @@ void kfree(void* virtual_address)
 		else if(cur_free_next!=NULL && cur_free_next->is_free){
 
 
-			//cprintf("next\n");
 			cur_free->pages=cur_free->pages+cur_free_next->pages;
 			cur_free->is_free=1;
 			cur_free_next->is_free=0;
@@ -463,27 +361,19 @@ void kfree(void* virtual_address)
 			void*ptr = cur_free_next;
 			free_block(ptr);
 			LIST_REMOVE(&hlist,cur_free_next);
-			//print_blocks_list(heap);
 
-			//panic("stop");
 
 		}
 
 		else if(cur_free_prev!=NULL && cur_free_prev->is_free){
 
 
-			//cprintf("prev\n");
-			//cprintf("pre \n");
 
 			//case 3 prev  is_free
 			cur_free_prev->pages=cur_free_prev->pages+cur_free->pages;
 			cur_free_prev->is_free=1;
 			cur_free->is_free=0;
-			//cur_free->size=0;
 
-
-
-			//cprintf("did i 1 \n");
 
 			uint32 frame_mapped = cur_free->vir_addf ;
 			for(int i=0;i<cur_free->pages;i++)
@@ -493,16 +383,11 @@ void kfree(void* virtual_address)
 
 			}
 
-			//cprintf("did i 2 \n");
 			cur_free->pages=0;
 			void*ptr = cur_free;
-			//cprintf("%x <------ptr \n",ptr);
-			//cprintf("%x <------ptr-16 \n",ptr-16);
-			//print_heap();
 
 			free_block(ptr);
 
-			//print_heap();
 			LIST_REMOVE(&hlist,cur_free);
 
 
@@ -512,14 +397,10 @@ void kfree(void* virtual_address)
 			uint32 frame_mapped = cur_free->vir_addf ;
 			for(int i=0;i<cur_free->pages;i++)
 			{
-					//uint32 ph = kheap_physical_address(frame_mapped);
 
-					//unmap remove frame
 					unmap_frame(ptr_page_directory,frame_mapped);
 					frame_mapped+=PAGE_SIZE;
 
-
-					//cprintf("%x <---framed to virual ",to_frame_info(ph)->va);
 			}
 
 
@@ -563,23 +444,13 @@ unsigned int kheap_virtual_address(unsigned int physical_address)
 
     //EFFICIENT IMPLEMENTATION ~O(1) IS REQUIRED ==================
 
-	//cprintf("hhhhh-%x -hhhhhhhh\n",physical_address);
-	//cprintf("HELOOOO \n");
 	uint32 off = (physical_address & 0x00000FFF);
 	uint32 frm_ph = (physical_address & 0xFFFFF000);
 	struct FrameInfo *pll =to_frame_info(physical_address);
-	//cprintf("%x <--- va frame \n",pll->va);
 	if( pll->va ==0 )
 		return 0;
 	uint32 va = pll->va + off;
-	/*uint32 offset = j;
-	allPAs[i] = (ptr_table[j] & 0xFFFFF000) + offset;*/
 
-
-    //cprintf("1 -- virtual-> %x  physical-> %x \n",va,physical_address);
-
-
-    //change this "return" according to your answer
     return va;
 }
 
@@ -590,8 +461,6 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
     // Write your code here, remove the panic and write your code
   //  panic("kheap_physical_address() is not implemented yet...!!");
 
-	//(ptr_table[j] & 0xFFFFF000)+(va & 0x00000FFF)
-//cprintf("hhhhh-%x -hhhhhhhh\n",virtual_address);
 		uint32 *ptr_t = NULL;
 	    int ret = get_page_table(ptr_page_directory,virtual_address,&ptr_t);
 
@@ -599,7 +468,6 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
 
 	    uint32 physical_addr =  (table_entry & 0xFFFFF000) + (virtual_address & 0x00000FFF);
 
-	    //cprintf("virtual-> %x  physical-> %x \n",virtual_address,physical_addr);
 	    return physical_addr;
 
 }

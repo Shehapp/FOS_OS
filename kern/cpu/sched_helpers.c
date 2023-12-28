@@ -545,17 +545,14 @@ int64 timer_ticks()
 int env_get_nice(struct Env* e)
 {
     //TODO: [PROJECT'23.MS3 - #3] [2] BSD SCHEDULER - env_get_nice
-    //Your code is here
-    //Comment the following line
+
 
     return e->nice_value;
 }
 void env_set_nice(struct Env* e, int nice_value)
 {
     //TODO: [PROJECT'23.MS3 - #3] [2] BSD SCHEDULER - env_set_nice
-    //Your code is here
-    //Comment the following line
-//    panic("Not implemented yet");
+
     e->nice_value=nice_value;
 
     e->priority = PRI_MAX - nice_value*2;
@@ -567,66 +564,22 @@ void env_set_nice(struct Env* e, int nice_value)
 		e->priority = 0;
 
 
-/*	fixed_point_t recent_cpu_scaled = fix_unscale(e->recent_cpu100, 4);
-	int nice_scaled = e->nice_value * 2;
-	fixed_point_t priority_fixed = fix_sub(fix_sub(fix_int(PRI_MAX), recent_cpu_scaled), fix_int(nice_scaled));
-
-	// Convert the fixed-point result to an integer for the final priority value.
-	int old_priority = e->priority;
-	e->priority = fix_trunc(priority_fixed);
-
-	if(e->priority >PRI_MAX)
-			e->priority = PRI_MAX;
-	else if(e->priority < 0 )
-		e->priority = 0;*/
-
 }
 int env_get_recent_cpu(struct Env* e)
 {
     //TODO: [PROJECT'23.MS3 - #3] [2] BSD SCHEDULER - env_get_recent_cpu
-    //Your code is here
-    //Comment the following line
 
 
 		return  fix_round(fix_scale(e->recent_cpu100, 100));
-
-	/* int num=(int)(e->recent_cpu100);
-    double decimals=(e->recent_cpu100)-num;
-    int res=0;
-    if(decimals<0.5){
-
-        res=num;
-
-    }else{
-
-        res=num+1;
-    }
-
-    return res;*/
-	return 0 ;
 }
 int get_load_average()
 {
     //TODO: [PROJECT'23.MS3 - #3] [2] BSD SCHEDULER - get_load_average
-    //Your code is here
-    //Comment the following line
+
 
 
 	return fix_round(fix_scale(load_avg, 100));
 
- /*       int num=(int)(load_avg100);
-        double decimals=(load_avg100)-num;
-        int res=0;
-        if(decimals<0.5){
-
-            res=num;
-
-        }else{
-
-            res=num+1;
-        }
-	*/
-        return 0;
 
 }
 

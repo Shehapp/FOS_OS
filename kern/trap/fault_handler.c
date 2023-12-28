@@ -140,7 +140,6 @@ int rm_ram_secList_add_disk(struct Env *e){
 
 int rm_ram_wsList_add_disk(struct Env *e){
 	//TODO: remove frame from ws list
-	// return 1 if you do it else return 0
 
 	if(LIST_SIZE(&e->page_WS_list) != 0){
 
@@ -211,9 +210,6 @@ int from_sec_to_act(struct Env *e, uint32 fault_va){
 
 void remove_to_disk(struct Env *e, struct WorkingSetElement *temp){
 
-	    // there is no any frames in sec list
-
-
 	    uint32 * ptr_t;
 	    struct FrameInfo *fr = NULL;
 
@@ -229,9 +225,8 @@ void remove_to_disk(struct Env *e, struct WorkingSetElement *temp){
 
 	    }
 
-	    // erase ws, unmap frame, set mark 0
+	    // erase ws, unmap frame
 	    env_page_ws_invalidate(e, (int) temp->virtual_address);
-//	    pt_set_page_permissions(e->env_page_directory, (int) temp->virtual_address, 0, PERM_MARK);
 	    unmap_frame(e->env_page_directory, temp->virtual_address);
 	    pt_set_page_permissions(e->env_page_directory, temp->virtual_address, PERM_MARK,PERM_PRESENT );
 

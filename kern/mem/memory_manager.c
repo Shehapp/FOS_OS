@@ -214,7 +214,6 @@ int allocate_frame(struct FrameInfo **ptr_frame_info)
 	if((*ptr_frame_info)->isBuffered)
 	{
 		pt_clear_page_table_entry((*ptr_frame_info)->environment->env_page_directory,(*ptr_frame_info)->va);
-		//pt_set_page_permissions((*ptr_frame_info)->environment->env_pgdir, (*ptr_frame_info)->va, 0, PERM_BUFFERED);
 	}
 
 	/**********************************************************

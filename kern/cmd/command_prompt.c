@@ -398,7 +398,6 @@ int process_command(int number_of_arguments, char** arguments)
 
 	LIST_INIT(&foundCommands);
 	//TODO: [PROJECT'23.MS1 - #2] [1] PLAY WITH CODE! - process_command
-	//Comment the following line before start coding...
 	int command_found = 0;
 		int i ;
 		for (i = 0; i < NUM_OF_COMMANDS; i++)
@@ -412,7 +411,6 @@ int process_command(int number_of_arguments, char** arguments)
 
 		if(command_found)
 		{
-			//cprintf("%d",commands[i].num_of_args);
 			if (number_of_arguments-1==commands[i].num_of_args || ( commands[i].num_of_args == -1 && number_of_arguments-1 >= 1 ))
 			{
 				return i;
@@ -443,7 +441,6 @@ int process_command(int number_of_arguments, char** arguments)
 			}
 			if (found == -1){
 			//if not found, then it's unknown command
-            //cprintf("Unknown command '%s'\n", arguments[0]);
 			return CMD_INVALID;
 			}
 
@@ -452,9 +449,3 @@ int process_command(int number_of_arguments, char** arguments)
 	//panic("process_command is not implemented yet");
 	return 0;
 }
-
-/*
- * sur
- * fdskjrkkukkkr
- * */
-

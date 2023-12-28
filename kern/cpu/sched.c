@@ -167,12 +167,7 @@ void sched_init_BSD(uint8 numOfLevels, uint8 quantum)
 {
 #if USE_KHEAP
     //TODO: [PROJECT'23.MS3 - #4] [2] BSD SCHEDULER - sched_init_BSD
-    //Your code is here
-    //Comment the following line
 
-  //  quantums = kmalloc(64*sizeof(uint8)) ;
-//	quant = quantum;
-	//cprintf("quantams[0]: %d  quantum:%d \n",quantums[0],quantum);
 
 	 quantums = kmalloc(1 * sizeof(uint8)) ;
 	 env_ready_queues = kmalloc(64*sizeof(struct Env_Queue));
@@ -185,14 +180,7 @@ void sched_init_BSD(uint8 numOfLevels, uint8 quantum)
 	        init_queue(&env_ready_queues[i]);
 	    }
 
-	 //	q=quantum;
-	 //sched_delete_ready_queues();
 
-
-//cprintf("2a333 %d \n",quantums[0]);
-//	quantums[0]=quantum;
-	//quantums[0]=quantum;
-   // cprintf("DONE\n");
     //=========================================
     //DON'T CHANGE THESE LINES=================
     scheduler_status = SCH_STOPPED;
@@ -320,31 +308,18 @@ bool initial = 0;
 struct Env* fos_scheduler_BSD()
 {
 
-/*	if(initial==0){
-		cprintf("\n\n\n\n\n hena \n\n\n\n\n");
-		//recalc_priority();
-		initial++;
-		print_envs();
-	}*/
 	//TODO: [PROJECT'23.MS3 - #5] [2] BSD SCHEDULER - fos_scheduler_BSD
-	    //Your code is here                                                 enqueue
-	    //Comment the following line
 
 	// may be we need  to check if the enviroment is still running so we push again in the queue
 
-	//cprintf("_________fos_schedular bn5oo4 feha__________ \n");
-	//print_envs();
-	//cprintf("quanrtms[0]: %d \n",quantums[0]);
 	struct Env* next_env = NULL;
 	struct Env* current_env = NULL;
 
 	if (curenv != NULL)
 	{
-		//cprintf("\n out \n ");
-		//cprintf(" cur->priority %d \n",curenv->priority);
+
 		enqueue(&(env_ready_queues[curenv->priority]), curenv);
 	}
-	//print_envs();
 
 	for(int i=num_of_ready_queues-1;i>=0;i--)
 	    {
@@ -361,7 +336,6 @@ struct Env* fos_scheduler_BSD()
 		kclock_set_quantum(quantums[0]);
 	}
 
-	//cprintf("quanrtms[0]: %d \n",quantums[0]);
 
 	if(next_env == NULL){
 
@@ -384,7 +358,6 @@ int get_num_process(){
 			cnt+=LIST_SIZE(&env_ready_queues[i]);
 
 	    }
-	//cprintf("process %d : \n",cnt);
 	return cnt;
 }
 
@@ -445,7 +418,6 @@ bool in_second(){
 void update_load(){
 
 	load_avg = fix_add(fix_mul(fix_frac(59, 60), load_avg),fix_mul(fix_frac(1, 60), fix_int(get_num_process())));
-	//cprintf("num-of readY %d , load %d \n",load_avg,get_num_process());
 
 }
 
@@ -469,7 +441,6 @@ void clock_interrupt_handler()
 		return;
 	//TODO: [PROJECT'23.MS3 - #5] [2] BSD SCHEDULER - Your code is here
 	{
-		//cprintf("_________clock ticker bn5oo4 feha__________ %d\n",curenv->env_id);
 
 		// update recent every tick
 
@@ -479,9 +450,7 @@ void clock_interrupt_handler()
 		print_quantums();
 		if(in_second() == 1 /*timer_ticks () % TIMER_FREQ == 0*/){
 
-			//cprintf("_______WWWWWWWWWWWWWWWW____________  \n");
-			//cprintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n stop\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-			//load_avg
+						//load_avg
 			update_load();
 			//recent_cpu for running proceess
 			recent_cpu_clac(curenv);
@@ -491,7 +460,6 @@ void clock_interrupt_handler()
 		}
 		// for every 4 ticks calculate the priority
 		if(ticks%4 == 0 && ticks!=0){
-			//cprintf("________welcome new queues______\n\n");
 
 			// calculate priority for the running && the curnenv position will be updated in calling fos_schedular
 			bool new = new_priority_clac(curenv);
@@ -511,7 +479,6 @@ void clock_interrupt_handler()
 	{
 		update_WS_time_stamps();
 	}
-	//cprintf("Clock Handler\n") ;
 	fos_scheduler();
 	/*****************************************/
 }
