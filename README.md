@@ -18,8 +18,8 @@ Kernel Memory starts from a constant point, KERNEL_BASE, and extends up to the b
 and is mapped in RAM from 0 to 256MB.  
 kernel Memory allocates executable files (.exe) of programs that need to run,  
 along with page tables and directory tables, among other things. It includes it own heap and stack.  
-Memory in the kernel heap can be allocated ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L254)) using first fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L180)) and best fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L315)) strategies,  
-and it also supports memory freeing ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L348)) and reallocation ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L640)).
+Memory in the kernel heap can be allocated ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L192)) using first fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L139)) and best fit ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/lib/dynamic_allocator.c#L246)) strategies,  
+and it also supports memory freeing ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L261)) and reallocation ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/mem/kheap.c#L508)).
 
 
 ### 2. User Memory
@@ -33,7 +33,7 @@ Memory in the User heap can be allocated ([_show code_](https://github.com/Sheha
 When a process needs to run, kernel creates a structure called 'Env' for it.  
 This structure contains metadata about the process such as its id, status, and current working set ([_see more_](https://github.com/Shehapp/FOS_OS/blob/main/inc/environment_definitions.h#L91)).  
 kernel handles this allocation and creates a 'working set' structure for each frame it allocates.  
-We utilize both LRU ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L346)) and FIFO ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L277)) strategies to manage the working set of a process.
+We utilize both LRU ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L346)) and FIFO ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/trap/fault_handler.c#L272)) strategies to manage the working set of a process.
 
 
 ### 3. Kernel Mode
@@ -44,7 +44,7 @@ We utilize both LRU ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/k
 
 * Solve competition in CPU through multiprocessing:  
   This allows FOS to run multiple processes simultaneously.  
-  The Round Robin (RR) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) and Berkeley Software Distribution (BSD) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L320)) strategies are used to manage this.
+  The Round Robin (RR) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L49)) and Berkeley Software Distribution (BSD) ([_show code_](https://github.com/Shehapp/FOS_OS/blob/main/kern/cpu/sched.c#L308)) strategies are used to manage this.
 
 ### 4. User Mode
 
